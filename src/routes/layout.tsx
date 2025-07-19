@@ -1,6 +1,5 @@
 import { Session } from "@auth/qwik";
 import {
-  $,
   Signal,
   Slot,
   component$,
@@ -9,12 +8,7 @@ import {
   useContextProvider,
   useSignal,
 } from "@builder.io/qwik";
-import {
-  Link,
-  routeLoader$,
-  useNavigate,
-  type RequestHandler,
-} from "@builder.io/qwik-city";
+import { Link, routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
 import { LuLogOut } from "@qwikest/icons/lucide";
 import { Octokit } from "octokit";
 import { OctokitFactory } from "~/services/octokit";
