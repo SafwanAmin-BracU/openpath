@@ -34,7 +34,7 @@
 
 ## [Setup & Infra]
 
-- Set up MVC repo with SvelteKit for frontend, Hono.js backend, PostgreSQL and Redis.
+- Set up MVC repo with Qwik for frontend, Hono.js backend, PostgreSQL and Redis.
 - Integrated GitHub OAuth (read:user, repo scopes).
 - Scaffold for user onboarding page.
 
