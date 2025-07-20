@@ -1,65 +1,75 @@
-# Qwik City App ⚡️
+# Project OpenPath
 
-- [Qwik Docs](https://qwik.dev/)
-- [Discord](https://qwik.dev/chat)
-- [Qwik GitHub](https://github.com/QwikDev/qwik)
-- [@QwikDev](https://twitter.com/QwikDev)
-- [Vite](https://vitejs.dev/)
+**Last updated:** Sunday, July 20, 2025, 6:16 AM +06
+
+## Project Concept
+
+OpenPath is a platform designed to connect computer science students with open-source projects, helping them discover, contribute to, and track real-world development experience. By leveraging the GitHub API, OpenPath curates personalized project matches based on a user’s skills and interests, and provides quantifiable metrics to support informed decision-making[1].
+
+## Mission Statement
+
+"To democratize access to open-source ecosystems by empowering students with tailored opportunities, mentorship, and verifiable proof of their impact. We turn the chaos of scattered repositories into a guided curriculum for real-world software development."[1]
 
 ---
 
-## Project Structure
+## Key Features
 
-This project is using Qwik with [QwikCity](https://qwik.dev/qwikcity/overview/). QwikCity is just an extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
+### 1. Intelligent Opportunity Matching Engine
 
-Inside your project, you'll see the following directory structure:
+- **Dynamic Skill-Based Filtering:** Multi-layer filtering by language, framework, domain, and issue label.
+- **Strategic Recommendations:** Issue recommendations based on GitHub activity, stated interests, or coursework.
+- **Beginner Difficulty Grading:** Auto-classification into Beginner/Intermediate/Advanced using contributor data, codebase stats, and maintainer responsiveness.
+- **Project Viability Scoring:** Projects scored (1–10) for clarity of documentation, maintainer engagement, and community activity[1].
 
-```
-├── public/
-│   └── ...
-└── src/
-    ├── components/
-    │   └── ...
-    └── routes/
-        └── ...
-```
+### 2. Contribution Portfolio & Verification System
 
-- `src/routes`: Provides the directory-based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.dev/qwikcity/routing/overview/) for more info.
+- **Automated PR Tracking:** Syncs accepted PRs from GitHub, tagging with relevant skills.
+- **Impact Metrics:** Tracks lines of code, resolved issues, and contribution frequency.
+- **Growth Dashboard:** Visualizes technical breadth (languages/frameworks) and depth.
+- **Experience Export:** PDF/LinkedIn-ready summaries with skill heatmaps and project testimonials.
 
-- `src/components`: Recommended directory for components.
+### 3. Skill Development Engine
 
-- `public`: Any static assets, like images, can be placed in the public directory. Please see the [Vite public directory](https://vitejs.dev/guide/assets.html#the-public-directory) for more info.
+- **Interactive Tutorials:** Hands-on labs for version control and PR practice.
+- **Progress Tracking:** Earn badges for milestone achievements.
+- **Open Source Etiquette:** Embedded mini-courses and etiquette guides.
 
-## Add Integrations and deployment
+### 4. Maintainer Ecosystem Tools
 
-Use the `bun qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.dev/qwikcity/guides/static-site-generation/).
+- **Onboarding Toolkit:** Templates for good-first-issue, CONTRIBUTING.md, and chat integrations.
+- **Outreach Dashboard:** Metrics on contributor diversity and engagement.
 
-```shell
-bun qwik add # or `bun qwik add`
-```
+---
 
-## Development
+## User Flow Summary
 
-Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
+1. **Onboarding:** Connect GitHub, complete skills/interest survey.
+2. **Discovery:** Receive & filter tailored issues and projects.
+3. **Contribution:** In-dashboard tracking of PRs/issues.
+4. **Growth:** See skills progress and generate verifiable experience reports.
 
-```shell
-npm start # or `bun start`
-```
+---
 
-> Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
+## Technology Stack
 
-## Preview
+- **Frontend:** Qwik, Tailwind CSS
+- **Backend:** QwikCity
+- **Database:** PostgreSQL (primary)
+- **DevOps:** GitHub Actions, Cloudflare Workers
+- **API:** GitHub OAuth, REST, and GraphQL
 
-The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
+---
 
-```shell
-bun preview # or `bun preview`
-```
+## Non-Functional Requirements
 
-## Production
+- Scalability: Handle 100K+ issues/day.
+- Privacy: Store only metadata, not code.
+- Performance: <5s for recommendations.
 
-The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
+---
 
-```shell
-bun build # or `bun build`
-```
+## Future Roadmap Preview
+
+- Recruiter search portal
+- Virtual hackathons
+- Mobile app for tracking and notifications
