@@ -4,7 +4,6 @@ import {
   routeLoader$,
   useLocation,
   useNavigate,
-  type DocumentHead,
 } from "@builder.io/qwik-city";
 import { Octokit } from "octokit";
 
