@@ -27,7 +27,7 @@ export const useGhUserData = routeLoader$(async ({ sharedMap }) => {
   return { ...data };
 });
 
-// Layout component
+// Layout
 export default component$(() => {
   const sidebarCollapseSignal = useSignal<boolean>(false);
   useContextProvider(SidebarCollapseContext, sidebarCollapseSignal);
