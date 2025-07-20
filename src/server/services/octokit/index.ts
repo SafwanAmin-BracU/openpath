@@ -1,4 +1,4 @@
-import { db } from "~/db";
+import { db } from "~/server/db";
 import { Octokit } from "octokit";
 
 export class OctokitFactory {
