@@ -7,24 +7,45 @@ import {
 } from "@builder.io/qwik";
 import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
 import { Octokit } from "octokit";
+import Header from "~/components/Header";
 import Sidebar, { SidebarCollapseContext } from "~/components/Sidebar";
-import { OctokitFactory } from "~/server/services/octokit";
+import { SessionWithAccessToken } from "./plugin@auth";
+
 // Middleware
 export const onRequest: RequestHandler = async (event) => {
-  const session: Session | null = event.sharedMap.get("session");
+  const session: SessionWithAccessToken | null = event.sharedMap.get("session");
   if (!session || new Date(session.expires) < new Date() || !session.user) {
     throw event.redirect(302, `/auth/signin?callbackUrl=${event.url.pathname}`);
   }
-  const octokit = await OctokitFactory.createOctokitInstance(session.user.id!);
-  event.sharedMap.set("octokit", octokit);
+  event.sharedMap.set("octokit", new Octokit({ auth: session.accessToken! }));
   await event.next();
 };
 
 // Loaders
 export const useGhUserData = routeLoader$(async ({ sharedMap }) => {
   const octokit: Octokit = sharedMap.get("octokit");
-  const { data } = await octokit.rest.users.getAuthenticated();
-  return { ...data };
+  const data = await octokit.graphql<{
+    viewer: {
+      login: string;
+      name: string;
+      avatarUrl: string;
+      url: string;
+      email?: string | null;
+    };
+  }>(
+    `#graphql
+    query {
+      viewer {
+        login
+        name
+        avatarUrl
+        url
+        email
+      }
+    }
+    `,
+  );
+  return data;
 });
 
 // Layout
@@ -48,30 +69,15 @@ export default component$(() => {
     >
       <Sidebar />
       <Header />
-      <Main children={<Slot />} />
-    </div>
-  );
-});
-
-// Components
-const Main = component$(() => {
-  return (
-    <div
-      class="box-border size-full"
-      style={{
-        gridArea: "main",
-        // overflowY: "scroll",
-      }}
-    >
-      <Slot />
-    </div>
-  );
-});
-
-const Header = component$(() => {
-  return (
-    <div class="bg-gray-400" style={{ gridArea: "header" }}>
-      Header
+      <div
+        class="box-border size-full"
+        style={{
+          gridArea: "main",
+          // overflowY: "scroll",
+        }}
+      >
+        <Slot />
+      </div>
     </div>
   );
 });

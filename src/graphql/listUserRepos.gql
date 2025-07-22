@@ -1,0 +1,19 @@
+query ($after: String!, $before: String!) {
+  viewer {
+    repositories(first: 5, after: $after, before: $before) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+        hasPreviousPage
+        startCursor
+      }
+      nodes {
+        name
+        owner {
+          login
+        }
+      }
+    }
+  }
+}

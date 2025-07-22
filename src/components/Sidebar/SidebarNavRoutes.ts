@@ -14,4 +14,19 @@ export const NavRoutes: INavRoute[] = [
     path: "/repo",
     icon: "📦",
   },
+  {
+    name: "Issues",
+    path: "/issue",
+    icon: "🐛",
+  },
+  {
+    name: "Pull Requests",
+    path: "/pr",
+    icon: "🔄",
+  },
+  {
+    name: "Settings",
+    path: "/settings",
+    icon: "⚙️",
+  },
 ];

@@ -6,7 +6,7 @@ import { SidebarCollapseContext } from ".";
 
 export default component$(() => {
   const sidebarCollapseSignal = useContext(SidebarCollapseContext);
-  const ghUserData = useGhUserData();
+  const { viewer } = useGhUserData().value;
   const signOut = useSignOut();
   return (
     <div
@@ -21,7 +21,7 @@ export default component$(() => {
       }}
     >
       <img
-        src={ghUserData.value.avatar_url}
+        src={viewer.avatarUrl}
         alt="user avatar"
         class="size-8 rounded-sm p-1 outline-2 -outline-offset-1 outline-gray-700"
         style={{ gridArea: "avatar", cursor: "pointer" }}
@@ -33,7 +33,7 @@ export default component$(() => {
           gridArea: "username",
         }}
       >
-        @{ghUserData.value.login}
+        @{viewer.login}
       </span>
       <span
         class={[
@@ -44,7 +44,7 @@ export default component$(() => {
           gridArea: "fullname",
         }}
       >
-        {ghUserData.value.name}
+        {viewer.name}
       </span>
       <LuLogOut
         class="size-8 rounded-sm bg-rose-200 p-1 text-rose-500 outline-2 -outline-offset-1 outline-rose-500 hover:bg-rose-300"
