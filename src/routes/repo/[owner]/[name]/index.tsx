@@ -3,9 +3,7 @@ import { routeLoader$, useLocation } from "@builder.io/qwik-city";
 import { Octokit } from "octokit";
 
 const useRepoDetails = routeLoader$(async ({ sharedMap, params }) => {
-  const octokit: Octokit = sharedMap.get("octokit");
-  const { owner, name } = params;
-  const repoDetails = await octokit.graphql<{
+  type RepoDetails = {
     repository: {
       owner: {
         avatarUrl: string;
@@ -29,7 +27,10 @@ const useRepoDetails = routeLoader$(async ({ sharedMap, params }) => {
         }>;
       };
     };
-  }>(`#graphql
+  };
+  const octokit: Octokit = sharedMap.get("octokit");
+  const { owner, name } = params;
+  const repoDetails = await octokit.graphql<RepoDetails>(`#graphql
   query ViewerLanguages {
   repository (name:"${name}", owner:"${owner}") {
     owner {
