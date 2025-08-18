@@ -1,4 +1,3 @@
-import { Session } from "@auth/qwik";
 import {
   Slot,
   component$,
@@ -30,7 +29,7 @@ export const useGhUserData = routeLoader$(async ({ sharedMap }) => {
       name: string;
       avatarUrl: string;
       url: string;
-      email?: string | null;
+      email: string;
     };
   }>(
     `#graphql
