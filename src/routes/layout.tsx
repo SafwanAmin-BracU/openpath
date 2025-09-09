@@ -1,6 +1,5 @@
 import { Slot, component$ } from "@builder.io/qwik";
 import {
-  routeAction$,
   routeLoader$,
   useLocation,
   type RequestHandler,
@@ -14,7 +13,7 @@ export const onRequest: RequestHandler = async (event) => {
 };
 
 // Loaders
-const useViewerData = routeLoader$(async (event) => {
+export const useViewerData = routeLoader$(async (event) => {
   const viewer = await getViewerData(
     await getOctokit(await event.sharedMap.get("session")),
   );

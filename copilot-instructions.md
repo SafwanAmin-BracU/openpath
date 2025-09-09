@@ -1,7 +1,9 @@
 # Copilot Instructions for App_OpenPath
 
 ## Tech Stack
+
 This project is built using the following technologies:
+
 - **Qwik**: A framework for building resumable web applications with server-side rendering and client-side hydration.
 - **TypeScript**: For type-safe development.
 - **Drizzle ORM**: For database interactions, schema definition, and migrations.
@@ -11,6 +13,7 @@ This project is built using the following technologies:
 - Additional libraries: Octokit for GitHub API interactions, authentication handling.
 
 ## Project Structure Guidelines
+
 - **Routes**: Each route directory can contain at most two files: `index.tsx` (the main component) and `layout.tsx` (for shared layout).
 - **Data Fetching**: Avoid client-side data fetching and `useEffect` hooks. Prefer Qwik's `routeActions` and `routeLoaders` for server-side data handling.
 - **Global Loaders/Actions**: Use global route loaders and actions only when they are required in multiple places across the application.
@@ -18,6 +21,7 @@ This project is built using the following technologies:
 - **Route Implementation**: In `routeAction` and `routeLoader` functions, perform business logic by instantiating and using the appropriate app class from the server directory.
 
 ## Coding Best Practices
+
 - **Type Safety**: Leverage TypeScript for all code to ensure type safety and better developer experience.
 - **Server-Side Focus**: Prioritize server-side rendering and data fetching to improve performance and SEO.
 - **Modularization**: Keep components and logic modular. Abstract reusable logic into server classes.
@@ -29,6 +33,7 @@ This project is built using the following technologies:
 - **Scripts and Templates**: Utilize the provided scripts in `/scripts/` for setup, feature creation, and updates. Use templates in `/templates/` for consistent file generation.
 
 ## Additional Notes
+
 - Ensure all new code adheres to the ESLint configuration.
 - When adding new features, use the scripts like `create-new-feature.sh` to maintain consistency.
 - For database changes, update the Drizzle schema and run migrations as needed.
