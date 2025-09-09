@@ -13,3 +13,5 @@ const pool = postgres(connectionString, { max: 1 });
 export const db = drizzle(pool, {
   schema,
 });
+export { schema };
+export * from './utils';

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-/* @plugin "daisyui"; */
 @plugin "@iconify/tailwind4";
 
 html {
@@ -14,18 +13,51 @@ body {
   @apply hidden;
 }
 
-.sidebarHidden {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.sidebarVisible {
-  visibility: visible;
-  opacity: 1;
-}
-
-.sidebarCollapseTransition {
-  transition:
-    visibility 0s,
-    opacity 0.5s linear;
+[data-appGridContainer] {
+  @apply grid size-full gap-3;
+  @apply grid-cols-[4rem_1fr] grid-rows-[3rem_1fr];
+  @apply bg-stone-50 p-4 text-stone-900;
+  @variant dark {
+    @apply bg-stone-900 text-stone-50;
+  }
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main";
+  [data-appMain] {
+    grid-area: main;
+  }
+  [data-appGridHeader] {
+    grid-area: header;
+  }
+  [data-appGridSidebar] {
+    @apply flex flex-col items-center gap-3;
+    @apply bg-stone-700/10 p-2 text-stone-900;
+    @variant dark {
+      @apply bg-stone-700/20 text-stone-50/90;
+    }
+    grid-area: sidebar;
+    > * {
+      @apply flex size-full items-center rounded-xl p-2;
+      @apply bg-emerald-500;
+      &:hover {
+        @apply bg-emerald-600;
+      }
+      &:last-child {
+        @apply flex h-fit w-full items-center gap-2;
+        img,
+        button {
+          @apply size-8 rounded-lg ring-2 ring-stone-50/80;
+        }
+        button:hover {
+          @apply bg-rose-400/60 text-rose-400/80 ring-rose-400/80;
+          @variant dark {
+            @apply bg-rose-400/40 text-rose-400/60 ring-rose-400/60;
+          }
+        }
+        span {
+          @apply text-sm font-medium;
+        }
+      }
+    }
+  }
 }

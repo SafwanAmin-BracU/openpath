@@ -34,42 +34,19 @@ OpenPath is a platform designed to connect computer science students with open-s
 - **Progress Tracking:** Earn badges for milestone achievements.
 - **Open Source Etiquette:** Embedded mini-courses and etiquette guides.
 
-### 4. Maintainer Ecosystem Tools
-
-- **Onboarding Toolkit:** Templates for good-first-issue, CONTRIBUTING.md, and chat integrations.
-- **Outreach Dashboard:** Metrics on contributor diversity and engagement.
-
 ---
 
 ## User Flow Summary
 
-1. **Onboarding:** Connect GitHub, complete skills/interest survey.
-2. **Discovery:** Receive & filter tailored issues and projects.
-3. **Contribution:** In-dashboard tracking of PRs/issues.
-4. **Growth:** See skills progress and generate verifiable experience reports.
+1. **Discovery:** Receive & filter tailored issues and projects.
+2. **Contribution:** In-dashboard tracking of PRs/issues.
+3. **Growth:** See skills progress and generate verifiable experience reports.
 
 ---
 
 ## Technology Stack
 
-- **Frontend:** Qwik, Tailwind CSS
-- **Backend:** QwikCity
+- **FullStack:** QwikCity
+- **Styling:** Tailwindcss, DaisyUI
 - **Database:** PostgreSQL (primary)
-- **DevOps:** GitHub Actions, Cloudflare Workers
-- **API:** GitHub OAuth, REST, and GraphQL
-
----
-
-## Non-Functional Requirements
-
-- Scalability: Handle 100K+ issues/day.
-- Privacy: Store only metadata, not code.
-- Performance: <5s for recommendations.
-
----
-
-## Future Roadmap Preview
-
-- Recruiter search portal
-- Virtual hackathons
-- Mobile app for tracking and notifications
+- **API:** GitHub GraphQL

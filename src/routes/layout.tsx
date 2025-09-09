@@ -1,81 +1,74 @@
+import { Slot, component$ } from "@builder.io/qwik";
 import {
-  Slot,
-  component$,
-  useContextProvider,
-  useSignal,
-} from "@builder.io/qwik";
-import { routeLoader$, type RequestHandler } from "@builder.io/qwik-city";
-import { Octokit } from "octokit";
-import Header from "~/components/Header";
-import Sidebar, { SidebarCollapseContext } from "~/components/Sidebar";
-import { SessionWithAccessToken } from "./plugin@auth";
+  routeAction$,
+  routeLoader$,
+  useLocation,
+  type RequestHandler,
+} from "@builder.io/qwik-city";
+import { useSignOut, verifySessionMiddleware } from "~/server/auth";
+import { getOctokit, getViewerData } from "~/server/octokit";
 
 // Middleware
 export const onRequest: RequestHandler = async (event) => {
-  const session: SessionWithAccessToken | null = event.sharedMap.get("session");
-  if (!session || new Date(session.expires) < new Date() || !session.user) {
-    throw event.redirect(302, `/auth/signin?callbackUrl=${event.url.pathname}`);
-  }
-  event.sharedMap.set("octokit", new Octokit({ auth: session.accessToken! }));
-  await event.next();
+  verifySessionMiddleware(event);
 };
 
 // Loaders
-export const useGhUserData = routeLoader$(async ({ sharedMap }) => {
-  const octokit: Octokit = sharedMap.get("octokit");
-  const data = await octokit.graphql<{
-    viewer: {
-      login: string;
-      name: string;
-      avatarUrl: string;
-      url: string;
-      email: string;
-    };
-  }>(
-    `#graphql
-    query {
-      viewer {
-        login
-        name
-        avatarUrl
-        url
-        email
-      }
-    }
-    `,
+const useViewerData = routeLoader$(async (event) => {
+  const viewer = await getViewerData(
+    await getOctokit(await event.sharedMap.get("session")),
   );
-  return data;
+  return viewer;
+});
+// Actions
+
+// Page
+export default component$(() => {
+  return (
+    <>
+      <div
+        data-appGridContainer
+        style={{ gridTemplateColumns: false ? "3rem 1fr" : "15rem 1fr" }}
+      >
+        <Header />
+        <Sidebar />
+        <main data-appMain>
+          <Slot />
+        </main>
+      </div>
+    </>
+  );
 });
 
-// Layout
-export default component$(() => {
-  const sidebarCollapseSignal = useSignal<boolean>(false);
-  useContextProvider(SidebarCollapseContext, sidebarCollapseSignal);
+// Components
+
+const Header = component$(() => {
+  const loc = useLocation();
   return (
-    <div
-      class={[
-        "grid size-full gap-3 p-4",
-        // "transition-all duration-300 ease-in-out",
-        "**:roundeds *:p-0 **:overflow-scroll",
-      ]}
-      style={{
-        gridTemplateColumns: sidebarCollapseSignal.value
-          ? "3rem 1fr"
-          : "15rem 1fr",
-        gridTemplateRows: "3rem 1fr",
-        gridTemplateAreas: `"sidebar header""sidebar main"`,
-      }}
-    >
-      <Sidebar />
-      <Header />
-      <div
-        class="box-border size-full"
-        style={{
-          gridArea: "main",
-          // overflowY: "scroll",
-        }}
-      >
-        <Slot />
+    <div data-appGridHeader>
+      <span>
+        {loc.url.pathname.split("/").join(" > ").trimStart().substring(1)}
+      </span>
+      {/* <div class="rounded-xl bg-gray-400" style={{ gridArea: "header" }}></div> */}
+    </div>
+  );
+});
+
+const Sidebar = component$(() => {
+  const viewerData = useViewerData();
+  const signOut = useSignOut();
+  return (
+    <div data-appGridSidebar>
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+      <div>hello</div>
+      <div>
+        <img src={viewerData?.value.avatarUrl} alt="" />
+        <span>@{viewerData?.value.login}</span>
+        <button onClick$={async () => await signOut.submit({})}>x</button>
       </div>
     </div>
   );
