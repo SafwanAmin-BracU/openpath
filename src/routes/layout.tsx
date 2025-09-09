@@ -1,6 +1,5 @@
 import { Slot, component$ } from "@builder.io/qwik";
 import {
-  routeAction$,
   routeLoader$,
   useLocation,
   type RequestHandler,
