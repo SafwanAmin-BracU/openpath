@@ -4,6 +4,7 @@
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 ## Execution Flow (/plan command scope)
+
 ```
 1. Load feature spec from Input path
    → If not found: ERROR "No feature spec at {path}"
@@ -25,13 +26,16 @@
 ```
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
+
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
+
 [Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
+
 **Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
@@ -43,34 +47,56 @@
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+
+**Route Structure**:
+
+- Each route directory limited to index.tsx and layout.tsx?
+- No additional files in route directories?
+
+**Data Fetching Strategy**:
+
+- No useEffect for data fetching?
+- Using routeLoader$ and routeAction$ for server-side data?
+
+**Abstraction Layer**:
+
+- Business logic abstracted to /src/server/[businessLogicApp]/index.ts?
+- Route handlers thin and focused on presentation?
+
+**Global Resources**:
+
+- Global loaders/actions only when needed across routes?
+- Local loaders/actions preferred?
+
+**Business Logic Integration**:
+
+- routeAction/routeLoader use abstracted app classes?
+- No direct business logic in routes?
 
 **Simplicity**:
+
 - Projects: [#] (max 3 - e.g., api, cli, tests)
 - Using framework directly? (no wrapper classes)
 - Single data model? (no DTOs unless serialization differs)
 - Avoiding patterns? (no Repository/UoW without proven need)
 
 **Architecture**:
+
 - EVERY feature as library? (no direct app code)
 - Libraries listed: [name + purpose for each]
 - CLI per library: [commands with --help/--version/--format]
 - Library docs: llms.txt format planned?
 
-**Testing (NON-NEGOTIABLE)**:
-- RED-GREEN-Refactor cycle enforced? (test MUST fail first)
-- Git commits show tests before implementation?
-- Order: Contract→Integration→E2E→Unit strictly followed?
-- Real dependencies used? (actual DBs, not mocks)
-- Integration tests for: new libraries, contract changes, shared schemas?
-- FORBIDDEN: Implementation before test, skipping RED phase
-
 **Observability**:
+
 - Structured logging included?
 - Frontend logs → backend? (unified stream)
 - Error context sufficient?
 
 **Versioning**:
+
 - Version number assigned? (MAJOR.MINOR.BUILD)
 - BUILD increments on every change?
 - Breaking changes handled? (parallel tests, migration plan)
@@ -78,6 +104,7 @@
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```
 specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
@@ -89,51 +116,51 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 ```
-# Option 1: Single project (DEFAULT)
+# QwikCity Full-Stack Application Structure
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── routes/                    # Route definitions (max 2 files per directory)
+│   ├── index.tsx             # Home route
+│   ├── layout.tsx            # Root layout
+│   └── [feature]/
+│       ├── index.tsx         # Feature route
+│       └── layout.tsx        # Feature layout (optional)
+├── server/                   # Server-side logic
+│   ├── [businessLogicApp]/   # Business logic abstraction
+│   │   └── index.ts          # Main app class
+│   ├── db/                   # Database layer
+│   ├── auth/                 # Authentication
+│   └── octokit/              # GitHub API integration
+├── components/               # Reusable UI components
+├── entry.*.tsx              # Qwik entry points
+└── global.tw.css            # Global styles
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+public/                      # Static assets
+├── favicon.svg
+├── manifest.json
+└── robots.txt
 
-# Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure]
+# Configuration files
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── drizzle.config.ts
+└── eslint.config.js
 ```
 
-**Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
+**Structure Decision**: QwikCity full-stack application with server-side business logic abstraction
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
+
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
+
    ```
    For each unknown in Technical Context:
      Task: "Research {unknown} for {feature context}"
@@ -149,28 +176,27 @@ ios/ or android/
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
-*Prerequisites: research.md complete*
+
+_Prerequisites: research.md complete_
 
 1. **Extract entities from feature spec** → `data-model.md`:
+
    - Entity name, fields, relationships
    - Validation rules from requirements
    - State transitions if applicable
 
 2. **Generate API contracts** from functional requirements:
+
    - For each user action → endpoint
    - Use standard REST/GraphQL patterns
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
-3. **Generate contract tests** from contracts:
-   - One test file per endpoint
-   - Assert request/response schemas
-   - Tests must fail (no implementation yet)
+3. **Extract test scenarios** from user stories:
 
-4. **Extract test scenarios** from user stories:
    - Each story → integration test scenario
    - Quickstart test = story validation steps
 
-5. **Update agent file incrementally** (O(1) operation):
+4. **Update agent file incrementally** (O(1) operation):
    - Run `/scripts/update-agent-context.sh [claude|gemini|copilot]` for your AI assistant
    - If exists: Add only NEW tech from current plan
    - Preserve manual additions between markers
@@ -178,48 +204,54 @@ ios/ or android/
    - Keep under 150 lines for token efficiency
    - Output to repository root
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
+**Output**: data-model.md, /contracts/\*, quickstart.md, agent-specific file
 
 ## Phase 2: Task Planning Approach
-*This section describes what the /tasks command will do - DO NOT execute during /plan*
+
+_This section describes what the /tasks command will do - DO NOT execute during /plan_
 
 **Task Generation Strategy**:
+
 - Load `/templates/tasks-template.md` as base
 - Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P] 
-- Each user story → integration test task
-- Implementation tasks to make tests pass
+- Each contract → implementation task [P]
+- Each entity → model creation task [P]
+- Each user story → feature implementation task
+- Implementation tasks to complete the feature
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
-- Dependency order: Models before services before UI
+
+- Implementation order: Models before services before UI
+- Dependency order: Core features before advanced features
 - Mark [P] for parallel execution (independent files)
 
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+**Estimated Output**: 15-20 numbered, ordered tasks in tasks.md
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
-*These phases are beyond the scope of the /plan command*
+
+_These phases are beyond the scope of the /plan command_
 
 **Phase 3**: Task execution (/tasks command creates tasks.md)  
 **Phase 4**: Implementation (execute tasks.md following constitutional principles)  
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
 ## Complexity Tracking
-*Fill ONLY if Constitution Check has violations that must be justified*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+_Fill ONLY if Constitution Check has violations that must be justified_
 
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
 
 ## Progress Tracking
-*This checklist is updated during execution flow*
+
+_This checklist is updated during execution flow_
 
 **Phase Status**:
+
 - [ ] Phase 0: Research complete (/plan command)
 - [ ] Phase 1: Design complete (/plan command)
 - [ ] Phase 2: Task planning complete (/plan command - describe approach only)
@@ -228,10 +260,12 @@ ios/ or android/
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
+
 - [ ] Initial Constitution Check: PASS
 - [ ] Post-Design Constitution Check: PASS
 - [ ] All NEEDS CLARIFICATION resolved
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+
+_Based on Constitution v1.1.0 - See `/memory/constitution.md`_
