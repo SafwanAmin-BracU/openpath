@@ -5,69 +5,71 @@ When amending the constitution (`/memory/constitution.md`), ensure all dependent
 ## Templates to Update
 
 ### When adding/modifying ANY article:
-- [ ] `/templates/plan-template.md` - Update Constitution Check section
+
+- [x] `/templates/plan-template.md` - Update Constitution Check section
 - [ ] `/templates/spec-template.md` - Update if requirements/scope affected
-- [ ] `/templates/tasks-template.md` - Update if new task types needed
+- [x] `/templates/tasks-template.md` - Update if new task types needed
 - [ ] `/.claude/commands/plan.md` - Update if planning process changes
 - [ ] `/.claude/commands/tasks.md` - Update if task generation affected
 - [ ] `/CLAUDE.md` - Update runtime development guidelines
 
 ### Article-specific updates:
 
-#### Article I (Library-First):
-- [ ] Ensure templates emphasize library creation
-- [ ] Update CLI command examples
-- [ ] Add llms.txt documentation requirements
+#### Article I (Route Structure):
 
-#### Article II (CLI Interface):
-- [ ] Update CLI flag requirements in templates
-- [ ] Add text I/O protocol reminders
+- [x] Ensure templates emphasize route creation with max 2 files
+- [x] Update path conventions to QwikCity routes
+- [x] Add route structure reminders
 
-#### Article III (Test-First):
-- [ ] Update test order in all templates
-- [ ] Emphasize TDD requirements
-- [ ] Add test approval gates
+#### Article II (Data Fetching Strategy):
 
-#### Article IV (Integration Testing):
-- [ ] List integration test triggers
-- [ ] Update test type priorities
-- [ ] Add real dependency requirements
+- [x] Update task examples to use routeLoader$ and routeAction$
+- [x] Add data fetching strategy checks in constitution check
 
-#### Article V (Observability):
-- [ ] Add logging requirements to templates
-- [ ] Include multi-tier log streaming
-- [ ] Update performance monitoring sections
+#### Article III (Abstraction Layer):
 
-#### Article VI (Versioning):
-- [ ] Add version increment reminders
-- [ ] Include breaking change procedures
-- [ ] Update migration requirements
+- [x] Update task examples to create server abstraction classes
+- [x] Add abstraction layer checks in constitution check
 
-#### Article VII (Simplicity):
-- [ ] Update project count limits
-- [ ] Add pattern prohibition examples
-- [ ] Include YAGNI reminders
+#### Article IV (Global Resources):
+
+- [x] Add global resources checks in constitution check
+- [x] Update task dependencies for global vs local
+
+#### Article V (Business Logic Integration):
+
+- [x] Add business logic integration checks in constitution check
+- [x] Update task examples to use abstracted classes in routes
+
+#### Article VI (No TDD/Testing):
+
+- [x] Remove TDD references from constitution
+- [x] Remove test-related tasks from templates
+- [x] Update technology stack to reflect manual testing only
 
 ## Validation Steps
 
 1. **Before committing constitution changes:**
-   - [ ] All templates reference new requirements
-   - [ ] Examples updated to match new rules
-   - [ ] No contradictions between documents
+
+   - [x] All templates reference new requirements
+   - [x] Examples updated to match new rules
+   - [x] No contradictions between documents
 
 2. **After updating templates:**
-   - [ ] Run through a sample implementation plan
-   - [ ] Verify all constitution requirements addressed
-   - [ ] Check that templates are self-contained (readable without constitution)
+
+   - [x] Run through a sample implementation plan
+   - [x] Verify all constitution requirements addressed
+   - [x] Check that templates are self-contained (readable without constitution)
 
 3. **Version tracking:**
-   - [ ] Update constitution version number
-   - [ ] Note version in template footers
-   - [ ] Add amendment to constitution history
+   - [x] Update constitution version number
+   - [x] Note version in template footers
+   - [x] Add amendment to constitution history
 
 ## Common Misses
 
 Watch for these often-forgotten updates:
+
 - Command documentation (`/commands/*.md`)
 - Checklist items in templates
 - Example code/commands
@@ -76,10 +78,11 @@ Watch for these often-forgotten updates:
 
 ## Template Sync Status
 
-Last sync check: 2025-07-16
-- Constitution version: 2.1.1
-- Templates aligned: ❌ (missing versioning, observability details)
+Last sync check: 2025-09-10
+
+- Constitution version: 1.1.0
+- Templates aligned: ✅ (removed TDD/testing, updated for manual review)
 
 ---
 
-*This checklist ensures the constitution's principles are consistently applied across all project documentation.*
+_This checklist ensures the constitution's principles are consistently applied across all project documentation._
