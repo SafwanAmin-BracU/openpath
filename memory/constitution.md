@@ -1,50 +1,62 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# OpenPath Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Route Structure
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Each route directory can have at most two files: index.tsx and layout.tsx. This ensures clean, focused routing and prevents route sprawl.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Data Fetching Strategy
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Avoid client-side data fetching with useEffect hooks. Prefer routeLoader$ and routeAction$ for server-side data handling to improve performance and SEO.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Abstraction Layer
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Abstract business logic into classes in /src/server/[businessLogicApp]/index.ts. Keep route handlers thin and focused on presentation.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Global Resources
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Use global route loaders/actions only when required across multiple routes. Otherwise, keep them local to maintain modularity.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Business Logic Integration
+
+In routeAction/routeLoader, perform business logic by using the abstracted app classes. Do not implement business logic directly in routes.
+
+## Technology Stack Requirements
+
+- **Framework**: QwikCity for full-stack web application
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS with DaisyUI
+- **Database**: PostgreSQL with Drizzle ORM
+- **API**: GitHub GraphQL API via Octokit
+- **Build Tool**: Vite with Bun package manager
+- **Testing**: Manual code review (no automated testing)
+- **Linting**: ESLint with Qwik-specific rules
+
+## Development Workflow
+
+### Code Review Requirements
+
+- All changes must pass linting (`bun run lint`)
+- Route structure must follow the two-file limit
+- Business logic must be abstracted to server classes
+- Data fetching must use routeLoaders/routeActions, not useEffect
+
+### Quality Gates
+
+- No unused variables or imports
+- Proper TypeScript types
+- Consistent formatting with Prettier
+- Manual code review for all changes
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other practices. Amendments require:
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+1. Documentation of change
+2. Update to dependent templates
+3. Validation that changes don't break existing structure
+
+All PRs/reviews must verify compliance with route structure, data fetching strategy, and abstraction principles.
+
+**Version**: 1.1.0 | **Ratified**: 2025-09-10 | **Last Amended**: 2025-09-10
