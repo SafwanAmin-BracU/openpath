@@ -4,7 +4,7 @@ When amending the constitution (`/memory/constitution.md`), ensure all dependent
 
 ## Templates to Update
 
-### When adding/modifying ANY article:
+### When adding/modifying ANY article
 
 - [x] `/templates/plan-template.md` - Update Constitution Check section
 - [ ] `/templates/spec-template.md` - Update if requirements/scope affected
@@ -13,35 +13,35 @@ When amending the constitution (`/memory/constitution.md`), ensure all dependent
 - [ ] `/.claude/commands/tasks.md` - Update if task generation affected
 - [ ] `/CLAUDE.md` - Update runtime development guidelines
 
-### Article-specific updates:
+### Article-specific updates
 
-#### Article I (Route Structure):
+#### Article I (Route Structure)
 
 - [x] Ensure templates emphasize route creation with max 2 files
 - [x] Update path conventions to QwikCity routes
 - [x] Add route structure reminders
 
-#### Article II (Data Fetching Strategy):
+#### Article II (Data Fetching Strategy)
 
 - [x] Update task examples to use routeLoader$ and routeAction$
 - [x] Add data fetching strategy checks in constitution check
 
-#### Article III (Abstraction Layer):
+#### Article III (Abstraction Layer)
 
 - [x] Update task examples to create server abstraction classes
 - [x] Add abstraction layer checks in constitution check
 
-#### Article IV (Global Resources):
+#### Article IV (Global Resources)
 
 - [x] Add global resources checks in constitution check
 - [x] Update task dependencies for global vs local
 
-#### Article V (Business Logic Integration):
+#### Article V (Business Logic Integration)
 
 - [x] Add business logic integration checks in constitution check
 - [x] Update task examples to use abstracted classes in routes
 
-#### Article VI (No TDD/Testing):
+#### Article VI (No TDD/Testing)
 
 - [x] Remove TDD references from constitution
 - [x] Remove test-related tasks from templates
