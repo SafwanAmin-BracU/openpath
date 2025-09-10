@@ -2,6 +2,7 @@ import type { AdapterAccountType } from "@auth/core/adapters"
 import {
   boolean,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -92,3 +93,14 @@ export const authenticators = pgTable(
     },
   ]
 )
+
+
+
+
+export const userStores = pgTable("user_store", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  store: jsonb("store").notNull().$defaultFn(() => ({})),
+})
