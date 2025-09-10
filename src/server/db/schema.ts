@@ -420,3 +420,211 @@ export interface IssueRecommendation {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   projectViability: number;
 }
+
+// Skills Development System Tables
+export const tutorials = pgTable("tutorials", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'version-control', 'pr-practice', 'git-workflow'
+  difficulty: text("difficulty").notNull(), // 'beginner', 'intermediate', 'advanced'
+  estimatedTime: integer("estimated_time").notNull(), // minutes
+  steps: jsonb("steps").notNull(), // Array of tutorial steps with instructions
+  validationRules: jsonb("validation_rules").notNull(), // Rules for validating user progress
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const userTutorialProgress = pgTable("user_tutorial_progress", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tutorialId: text("tutorial_id")
+    .notNull()
+    .references(() => tutorials.id, { onDelete: "cascade" }),
+  currentStep: integer("current_step").notNull().default(0),
+  completedSteps: jsonb("completed_steps").$defaultFn(() => []), // Array of completed step indices
+  answers: jsonb("answers").$defaultFn(() => ({})), // User's answers for validation
+  isCompleted: boolean("is_completed").notNull().default(false),
+  completedAt: timestamp("completed_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const badges = pgTable("badges", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(), // Icon identifier or emoji
+  category: text("category").notNull(), // 'tutorial', 'milestone', 'etiquette', 'contribution'
+  criteria: jsonb("criteria").notNull(), // Requirements to earn the badge
+  points: integer("points").notNull().default(10), // Points awarded
+  rarity: text("rarity").notNull().default('common'), // 'common', 'rare', 'epic', 'legendary'
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const userBadges = pgTable("user_badges", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  badgeId: text("badge_id")
+    .notNull()
+    .references(() => badges.id, { onDelete: "cascade" }),
+  earnedAt: timestamp("earned_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  earnedThrough: text("earned_through").notNull(), // What action earned this badge
+})
+
+export const etiquetteGuides = pgTable("etiquette_guides", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // 'communication', 'contribution', 'licensing', 'general'
+  difficulty: text("difficulty").notNull(), // 'beginner', 'intermediate', 'advanced'
+  estimatedTime: integer("estimated_time").notNull(), // minutes
+  lessons: jsonb("lessons").notNull(), // Array of lesson objects with content and quizzes
+  quiz: jsonb("quiz").notNull(), // Final quiz questions and answers
+  passingScore: integer("passing_score").notNull().default(70), // Minimum score to pass
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const userEtiquetteProgress = pgTable("user_etiquette_progress", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  guideId: text("guide_id")
+    .notNull()
+    .references(() => etiquetteGuides.id, { onDelete: "cascade" }),
+  currentLesson: integer("current_lesson").notNull().default(0),
+  completedLessons: jsonb("completed_lessons").$defaultFn(() => []), // Array of completed lesson indices
+  quizAnswers: jsonb("quiz_answers").$defaultFn(() => ({})), // User's quiz answers
+  quizScore: integer("quiz_score"), // Final quiz score percentage
+  isCompleted: boolean("is_completed").notNull().default(false),
+  completedAt: timestamp("completed_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+// TypeScript interfaces for Skills Development System
+export interface Tutorial {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime: number;
+  steps: TutorialStep[];
+  validationRules: ValidationRule[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TutorialStep {
+  id: string;
+  title: string;
+  description: string;
+  instructions: string[];
+  type: 'instruction' | 'exercise' | 'validation' | 'quiz';
+  expectedOutcome?: string;
+  hints?: string[];
+  validationCriteria?: string[];
+}
+
+export interface ValidationRule {
+  stepId: string;
+  type: 'command' | 'file' | 'output' | 'manual';
+  criteria: any;
+  successMessage: string;
+  failureMessage: string;
+}
+
+export interface UserTutorialProgress {
+  id: string;
+  userId: string;
+  tutorialId: string;
+  currentStep: number;
+  completedSteps: number[];
+  answers: Record<string, any>;
+  isCompleted: boolean;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  criteria: BadgeCriteria;
+  points: number;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  createdAt: Date;
+}
+
+export interface BadgeCriteria {
+  type: 'tutorial_completion' | 'milestone' | 'contribution_count' | 'skill_proficiency';
+  target: string | number;
+  conditions?: Record<string, any>;
+}
+
+export interface UserBadge {
+  id: string;
+  userId: string;
+  badgeId: string;
+  earnedAt: Date;
+  earnedThrough: string;
+}
+
+export interface EtiquetteGuide {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime: number;
+  lessons: EtiquetteLesson[];
+  quiz: QuizQuestion[];
+  passingScore: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EtiquetteLesson {
+  id: string;
+  title: string;
+  content: string;
+  keyPoints: string[];
+  examples?: string[];
+  doDontList?: {
+    do: string[];
+    dont: string[];
+  };
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: 'multiple-choice' | 'true-false' | 'short-answer';
+  options?: string[];
+  correctAnswer: string | string[];
+  explanation: string;
+}
+
+export interface UserEtiquetteProgress {
+  id: string;
+  userId: string;
+  guideId: string;
+  currentLesson: number;
+  completedLessons: number[];
+  quizAnswers: Record<string, any>;
+  quizScore?: number;
+  isCompleted: boolean;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}

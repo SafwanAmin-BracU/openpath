@@ -3,6 +3,7 @@ import { db } from "../../db";
 import { projectViability } from "../../db/schema";
 import { eq, and, lt } from "drizzle-orm";
 import type { ProjectViability } from "../../db/schema";
+import { getMockProjectByFullName } from "./mockData";
 
 export class ViabilityScoreService {
   /**
@@ -174,20 +175,36 @@ export class ViabilityScoreService {
     openIssuesCount: number;
     totalIssuesCount: number;
   } {
-    // Mock data based on repository name patterns
-    const hasGoodDocs = repoFullName.includes('microsoft') ||
-                       repoFullName.includes('facebook') ||
-                       repoFullName.includes('google');
+    // Get project data from centralized mock data
+    const [owner, name] = repoFullName.split('/');
+    const project = getMockProjectByFullName(owner, name);
 
-    const isPopular = repoFullName.includes('react') ||
-                     repoFullName.includes('vue') ||
-                     repoFullName.includes('angular');
+    if (!project) {
+      // Fallback for unknown projects
+      return {
+        hasReadme: Math.random() > 0.1,
+        hasContributing: Math.random() > 0.3,
+        hasCodeOfConduct: Math.random() > 0.4,
+        avgResponseTimeDays: Math.floor(Math.random() * 7) + 1,
+        contributorsPast3Months: Math.floor(Math.random() * 10) + 1,
+        recentCommitsPastMonth: Math.floor(Math.random() * 20) + 1,
+        openIssuesCount: Math.floor(Math.random() * 50) + 5,
+        totalIssuesCount: Math.floor(Math.random() * 200) + 20,
+      };
+    }
+
+    // Calculate metrics based on project characteristics
+    const isPopular = (project.stars || 0) > 50000;
+    const isWellMaintained = project.owner === 'microsoft' ||
+                            project.owner === 'facebook' ||
+                            project.owner === 'google' ||
+                            project.owner === 'vercel';
 
     return {
-      hasReadme: Math.random() > 0.1, // 90% have README
-      hasContributing: hasGoodDocs || Math.random() > 0.3, // Popular repos more likely to have
-      hasCodeOfConduct: hasGoodDocs || Math.random() > 0.4,
-      avgResponseTimeDays: hasGoodDocs ? 1 : Math.floor(Math.random() * 7) + 1,
+      hasReadme: true, // Assume all our mock projects have README
+      hasContributing: isWellMaintained || Math.random() > 0.3,
+      hasCodeOfConduct: isWellMaintained || Math.random() > 0.4,
+      avgResponseTimeDays: isWellMaintained ? 1 : Math.floor(Math.random() * 7) + 1,
       contributorsPast3Months: isPopular ? Math.floor(Math.random() * 50) + 10 : Math.floor(Math.random() * 10) + 1,
       recentCommitsPastMonth: isPopular ? Math.floor(Math.random() * 100) + 20 : Math.floor(Math.random() * 20) + 1,
       openIssuesCount: Math.floor(Math.random() * 50) + 5,

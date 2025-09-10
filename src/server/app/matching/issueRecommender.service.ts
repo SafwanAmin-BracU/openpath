@@ -4,6 +4,7 @@ import { opportunityRecommendations, skills, contributions } from "../../db/sche
 import { eq, and, lt, desc, inArray } from "drizzle-orm";
 import { ViabilityScoreService } from "./viabilityScore.service";
 import type { IssueRecommendation, OpportunityRecommendation } from "../../db/schema";
+import { MOCK_PROJECTS, MOCK_ISSUES, getMockProjectByFullName, getMockIssuesForProject } from "./mockData";
 
 export class IssueRecommenderService {
   private viabilityService: ViabilityScoreService;
@@ -183,114 +184,222 @@ export class IssueRecommenderService {
     experienceLevel: string
   ): any[] {
     const issues = [];
-    const languages = userSkills.length > 0 ? userSkills : ['javascript', 'python', 'typescript'];
-    const topics = interests.length > 0 ? interests : ['web-development', 'api', 'testing'];
+    const selectedProjects = this.selectRelevantProjects(MOCK_PROJECTS, userSkills, interests);
 
-    for (let i = 0; i < 25; i++) {
-      const language = languages[Math.floor(Math.random() * languages.length)];
-      const topic = topics[Math.floor(Math.random() * topics.length)];
+    for (let i = 0; i < Math.min(30, selectedProjects.length * 2); i++) {
+      const project = selectedProjects[i % selectedProjects.length];
+      const projectIssues = getMockIssuesForProject(project.owner, project.name);
 
-      issues.push({
-        id: `issue_${i}`,
-        number: 100 + i,
-        title: this.generateIssueTitle(language, topic, i),
-        body: `This is a ${experienceLevel} level issue related to ${language} and ${topic}.`,
-        state: 'open',
-        html_url: `https://github.com/mock-org/mock-repo/issues/${100 + i}`,
-        created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-        labels: this.generateLabels(language, topic, experienceLevel),
-        repository_name: `mock-repo-${i}`,
-        repository_full_name: `mock-org/mock-repo-${i}`,
-        repository_language: language,
-        repository_topics: [topic, 'open-source'],
-      });
+      if (projectIssues.length > 0) {
+        const issueData = projectIssues[i % projectIssues.length];
+
+        issues.push({
+          id: `issue_${project.owner}_${project.name}_${i}`,
+          number: 1000 + i,
+          title: issueData.title,
+          body: issueData.body,
+          state: 'open',
+          html_url: `https://github.com/${project.owner}/${project.name}/issues/${1000 + i}`,
+          created_at: issueData.created_at,
+          labels: issueData.labels,
+          repository_name: project.name,
+          repository_full_name: `${project.owner}/${project.name}`,
+          repository_language: project.language,
+          repository_topics: project.topics,
+          difficulty: issueData.difficulty,
+        });
+      } else {
+        // Fallback for projects without specific issues
+        const fallbackIssue = this.generateFallbackIssue(project, i, experienceLevel);
+        issues.push(fallbackIssue);
+      }
     }
 
     return issues;
   }
 
   /**
-   * Generate realistic issue titles
+   * Generate fallback issue for projects without specific mock data
    */
-  private generateIssueTitle(language: string, topic: string, index: number): string {
-    const templates = [
-      `Add ${topic} support for ${language}`,
-      `Improve ${language} ${topic} documentation`,
-      `Fix ${language} ${topic} bug in component`,
-      `Enhance ${language} ${topic} performance`,
-      `Add tests for ${language} ${topic} feature`,
-      `Update ${language} ${topic} dependencies`,
-      `Refactor ${language} ${topic} code structure`,
-      `Add ${language} ${topic} error handling`,
-      `Implement ${language} ${topic} caching`,
-      `Create ${language} ${topic} examples`,
-    ];
+  private generateFallbackIssue(project: any, index: number, experienceLevel: string) {
+    const templates = this.getGenericIssueTemplates(project);
+    const template = templates[index % templates.length];
 
-    return templates[index % templates.length];
+    return {
+      id: `issue_${project.owner}_${project.name}_${index}`,
+      number: 1000 + index,
+      title: template.title,
+      body: template.body,
+      state: 'open',
+      html_url: `https://github.com/${project.owner}/${project.name}/issues/${1000 + index}`,
+      created_at: this.generateRealisticDate(),
+      labels: this.generateRealisticLabels(project, experienceLevel, template.difficulty),
+      repository_name: project.name,
+      repository_full_name: `${project.owner}/${project.name}`,
+      repository_language: project.language,
+      repository_topics: project.topics,
+      difficulty: template.difficulty,
+    };
   }
 
   /**
-   * Generate appropriate labels for issues
+   * Select projects most relevant to user's skills and interests
    */
-  private generateLabels(language: string, topic: string, experienceLevel: string): string[] {
-    const labels = [language, topic];
+  private selectRelevantProjects(
+    projects: any[],
+    userSkills: string[],
+    interests: string[]
+  ): any[] {
+    return projects
+      .map(project => {
+        let relevanceScore = 0;
 
-    // Add difficulty labels
-    if (experienceLevel === 'beginner' || Math.random() > 0.7) {
+        // Language match
+        if (userSkills.includes(project.language)) {
+          relevanceScore += 3;
+        }
+
+        // Topic/interests match
+        const topicMatches = project.topics.filter((topic: string) =>
+          interests.some((interest: string) =>
+            topic.toLowerCase().includes(interest.toLowerCase()) ||
+            interest.toLowerCase().includes(topic.toLowerCase())
+          )
+        );
+        relevanceScore += topicMatches.length * 2;
+
+        return { ...project, relevanceScore };
+      })
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .slice(0, 15); // Return top 15 most relevant projects
+  }
+
+  /**
+   * Get generic issue templates for projects without specific templates
+   */
+  private getGenericIssueTemplates(project: any) {
+    const genericTemplates = [
+      {
+        title: `Add ${project.topics[0]} documentation improvements`,
+        body: `The ${project.topics[0]} documentation could be enhanced with more examples and clearer explanations. Consider adding tutorials, API reference improvements, and troubleshooting guides.`,
+        difficulty: 'beginner' as const
+      },
+      {
+        title: `Improve ${project.language} ${project.topics[0]} performance`,
+        body: `There are opportunities to improve performance in the ${project.language} ${project.topics[0]} implementation. Focus areas include memory usage, execution speed, and resource optimization.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Add ${project.topics[0]} testing infrastructure`,
+        body: `The project needs better testing infrastructure for ${project.topics[0]} functionality. This includes unit tests, integration tests, and potentially end-to-end testing setup.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Implement ${project.language} ${project.topics[0]} feature`,
+        body: `A new ${project.topics[0]} feature needs to be implemented in ${project.language}. This involves designing the API, implementing the core functionality, and adding appropriate tests.`,
+        difficulty: 'advanced' as const
+      },
+      {
+        title: `Fix ${project.language} ${project.topics[0]} bug`,
+        body: `There's a bug in the ${project.language} ${project.topics[0]} implementation that needs to be addressed. The issue involves [specific problem description] and requires careful debugging and testing.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Add ${project.language} ${project.topics[0]} examples`,
+        body: `The project would benefit from more practical examples showing how to use ${project.topics[0]} features in ${project.language}. Focus on real-world use cases and best practices.`,
+        difficulty: 'beginner' as const
+      },
+      {
+        title: `Enhance ${project.language} ${project.topics[0]} error handling`,
+        body: `The error handling in ${project.language} ${project.topics[0]} could be improved to provide better user experience and debugging information.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Add ${project.language} ${project.topics[0]} configuration options`,
+        body: `More configuration options are needed for ${project.topics[0]} in ${project.language} to support different use cases and deployment scenarios.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Implement ${project.language} ${project.topics[0]} caching`,
+        body: `Add caching support to ${project.topics[0]} in ${project.language} to improve performance and reduce redundant operations.`,
+        difficulty: 'advanced' as const
+      },
+      {
+        title: `Update ${project.language} ${project.topics[0]} dependencies`,
+        body: `Several dependencies in the ${project.language} ${project.topics[0]} module are outdated and should be updated to their latest versions.`,
+        difficulty: 'intermediate' as const
+      },
+      {
+        title: `Add ${project.language} ${project.topics[0]} logging`,
+        body: `Improve logging in ${project.language} ${project.topics[0]} to provide better observability and debugging capabilities.`,
+        difficulty: 'beginner' as const
+      },
+      {
+        title: `Refactor ${project.language} ${project.topics[0]} architecture`,
+        body: `The ${project.language} ${project.topics[0]} architecture needs refactoring to improve maintainability, scalability, and code organization.`,
+        difficulty: 'advanced' as const
+      }
+    ];
+
+    return genericTemplates;
+  }
+
+  /**
+   * Generate realistic labels for issues
+   */
+  private generateRealisticLabels(project: any, experienceLevel: string, issueDifficulty: string) {
+    const labels = [project.language];
+
+    // Add project-specific labels
+    if (project.topics.length > 0) {
+      labels.push(project.topics[0]);
+    }
+
+    // Add difficulty-based labels
+    if (issueDifficulty === 'beginner' || Math.random() > 0.6) {
       labels.push('good first issue');
     }
 
-    if (Math.random() > 0.5) {
+    // Add status labels
+    if (Math.random() > 0.7) {
       labels.push('help wanted');
     }
 
-    if (Math.random() > 0.6) {
+    if (Math.random() > 0.5) {
       labels.push('enhancement');
+    }
+
+    if (Math.random() > 0.8) {
+      labels.push('bug');
+    }
+
+    // Add priority labels
+    if (Math.random() > 0.85) {
+      labels.push('priority: high');
+    } else if (Math.random() > 0.7) {
+      labels.push('priority: medium');
     }
 
     return labels;
   }
 
   /**
+   * Generate realistic creation dates
+   */
+  private generateRealisticDate(): string {
+    // Issues from last 90 days, with more recent ones being more likely
+    const daysAgo = Math.floor(Math.pow(Math.random(), 2) * 90);
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    return date.toISOString();
+  }
+
+  /**
    * Assess difficulty of an issue based on various factors
    */
   private assessIssueDifficulty(issue: any): 'beginner' | 'intermediate' | 'advanced' {
-    let score = 0;
-
-    // Check for beginner-friendly labels
-    if (issue.labels.includes('good first issue')) {
-      score += 3;
-    }
-
-    // Check repository size (mock logic)
-    const repoSize = issue.repository_name.length * 10; // Mock size calculation
-    if (repoSize < 50) {
-      score += 2;
-    } else if (repoSize > 200) {
-      score -= 1;
-    }
-
-    // Check issue complexity based on keywords
-    const complexKeywords = ['refactor', 'architecture', 'performance', 'security'];
-    const simpleKeywords = ['documentation', 'test', 'example', 'typo'];
-
-    const title = issue.title.toLowerCase();
-    complexKeywords.forEach(keyword => {
-      if (title.includes(keyword)) score -= 1;
-    });
-
-    simpleKeywords.forEach(keyword => {
-      if (title.includes(keyword)) score += 1;
-    });
-
-    // Determine difficulty level
-    if (score >= 3) {
-      return 'beginner';
-    } else if (score >= 0) {
-      return 'intermediate';
-    } else {
-      return 'advanced';
-    }
+    // Use the difficulty from the generated issue data
+    return issue.difficulty || 'intermediate';
   }
 
   /**
@@ -352,14 +461,16 @@ export class IssueRecommenderService {
       }
     }
 
-    // Sort by score descending
+    // Sort by score descending (score is stored separately)
     return scoredIssues.sort((a, b) => {
-      // Primary sort by score
-      if (a.issue.score !== b.issue.score) {
-        return b.issue.score - a.issue.score;
+      // Primary sort by project viability (as a proxy for overall quality)
+      if (a.projectViability !== b.projectViability) {
+        return b.projectViability - a.projectViability;
       }
-      // Secondary sort by project viability
-      return b.projectViability - a.projectViability;
+      // Secondary sort by recency
+      const aDate = new Date(a.issue.created_at).getTime();
+      const bDate = new Date(b.issue.created_at).getTime();
+      return bDate - aDate;
     });
   }
 
@@ -391,8 +502,11 @@ export class IssueRecommenderService {
       reasons.push(`matches your ${issue.repository_language} skills`);
     }
 
-    if (interests.some(interest => issue.repository_topics.includes(interest))) {
-      reasons.push(`aligns with your interest in ${issue.repository_topics.find(t => interests.includes(t))}`);
+    if (interests.some((interest: string) => issue.repository_topics.includes(interest))) {
+      const matchingTopic = issue.repository_topics.find((t: string) => interests.includes(t));
+      if (matchingTopic) {
+        reasons.push(`aligns with your interest in ${matchingTopic}`);
+      }
     }
 
     if (issue.difficulty === 'beginner') {
