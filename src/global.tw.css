@@ -1,16 +1,70 @@
 @import "tailwindcss";
 @plugin "@iconify/tailwind4";
 
+/* Global Color Variables for OpenPath Theme */
+:root {
+  --op-bg-primary: theme(colors.stone.50);
+  --op-bg-secondary: theme(colors.white);
+  --op-bg-tertiary: theme(colors.stone.800);
+  --op-bg-accent: theme(colors.emerald.50);
+  --op-text-primary: theme(colors.stone.900);
+  --op-text-secondary: theme(colors.stone.600);
+  --op-text-muted: theme(colors.stone.400);
+  --op-border-primary: theme(colors.stone.200);
+  --op-border-secondary: theme(colors.stone.300);
+  --op-accent-primary: theme(colors.emerald.600);
+  --op-accent-secondary: theme(colors.emerald.500);
+  --op-accent-hover: theme(colors.emerald.700);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --op-bg-primary: theme(colors.stone.900);
+    --op-bg-secondary: theme(colors.stone.800);
+    --op-bg-tertiary: theme(colors.stone.700);
+    --op-bg-accent: theme(colors.emerald.900 / 0.2);
+    --op-text-primary: theme(colors.stone.100);
+    --op-text-secondary: theme(colors.stone.400);
+    --op-text-muted: theme(colors.stone.500);
+    --op-border-primary: theme(colors.stone.700);
+    --op-border-secondary: theme(colors.stone.600);
+  }
+}
+
 html {
   @apply box-border h-screen w-screen;
 }
 
 body {
   @apply m-0 box-border size-full p-0;
+  @apply bg-stone-50 text-stone-900;
+  @variant dark {
+    @apply bg-stone-900 text-stone-50;
+  }
 }
 
 ::-webkit-scrollbar {
   @apply hidden;
+}
+
+/* Top Navigation Styles */
+nav {
+  @apply border-b border-stone-200 bg-white;
+  @variant dark {
+    @apply border-stone-700 bg-stone-800;
+  }
+}
+
+/* Main content with top padding for fixed nav */
+main {
+  @apply pt-16;
+}
+
+/* Responsive navigation */
+@media (max-width: 768px) {
+  .nav-links {
+    @apply hidden;
+  }
 }
 
 [data-appGridContainer] {
