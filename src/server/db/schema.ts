@@ -104,3 +104,60 @@ export const userStores = pgTable("user_store", {
     .references(() => users.id, { onDelete: "cascade" }),
   store: jsonb("store").notNull().$defaultFn(() => ({})),
 })
+
+// GitHub Issues Cache Table for Dynamic Skill-Based Filtering
+export const githubIssuesCache = pgTable("github_issues_cache", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  cacheKey: text("cache_key").notNull().unique(),
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  dataType: text("data_type").notNull(), // 'issues', 'languages', 'topics'
+})
+
+// Indexes for efficient cache lookups
+export const githubIssuesCacheIndexes = {
+  cacheKeyIdx: "github_issues_cache_cache_key_idx",
+  expiresAtIdx: "github_issues_cache_expires_at_idx",
+  dataTypeIdx: "github_issues_cache_data_type_idx",
+}
+
+// TypeScript interfaces for GitHub data types
+export interface GitHubIssue {
+  id: string;
+  number: number;
+  title: string;
+  body?: string;
+  state: 'open' | 'closed';
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  labels: string[];
+  repository_name: string;
+  repository_full_name: string;
+  repository_language: string;
+  repository_topics: string[];
+  difficulty_labels: string[];
+}
+
+export interface FilterCriteria {
+  language: string | null;
+  topic: string | null;
+  session_id: string;
+}
+
+export interface FilterResult {
+  issues: GitHubIssue[];
+  total_count: number;
+  filter_applied: FilterCriteria;
+  cache_timestamp: string;
+  is_from_cache: boolean;
+}
+
+export interface CacheEntry {
+  cache_key: string;
+  data: any;
+  created_at: Date;
+  expires_at: Date;
+  data_type: 'issues' | 'languages' | 'topics';
+}
