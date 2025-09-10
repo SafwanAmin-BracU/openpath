@@ -161,3 +161,95 @@ export interface CacheEntry {
   expires_at: Date;
   data_type: 'issues' | 'languages' | 'topics';
 }
+
+// Contributions Tracking Tables
+export const contributions = pgTable("contributions", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  prId: text("pr_id").notNull(), // GitHub PR ID
+  prNumber: integer("pr_number").notNull(),
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  repositoryName: text("repository_name").notNull(),
+  repositoryOwner: text("repository_owner").notNull(),
+  mergedAt: timestamp("merged_at", { mode: "date" }).notNull(),
+  additions: integer("additions").notNull().default(0),
+  deletions: integer("deletions").notNull().default(0),
+  changedFiles: integer("changed_files").notNull().default(0),
+  primaryLanguage: text("primary_language"),
+  labels: jsonb("labels").$defaultFn(() => []),
+  files: jsonb("files").$defaultFn(() => []),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const skills = pgTable("skills", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(), // e.g., "JavaScript", "React", "Python"
+  category: text("category").notNull(), // e.g., "language", "framework", "tool"
+  proficiency: integer("proficiency").notNull().default(1), // 1-10 scale
+  firstUsed: timestamp("first_used", { mode: "date" }),
+  lastUsed: timestamp("last_used", { mode: "date" }),
+  totalContributions: integer("total_contributions").notNull().default(0),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const contributionSkills = pgTable("contribution_skills", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  contributionId: text("contribution_id")
+    .notNull()
+    .references(() => contributions.id, { onDelete: "cascade" }),
+  skillId: text("skill_id")
+    .notNull()
+    .references(() => skills.id, { onDelete: "cascade" }),
+  confidence: integer("confidence").notNull().default(1), // How confident we are in this skill detection
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+// TypeScript interfaces for contribution tracking
+export interface Contribution {
+  id: string;
+  userId: string;
+  prId: string;
+  prNumber: number;
+  title: string;
+  url: string;
+  repositoryName: string;
+  repositoryOwner: string;
+  mergedAt: Date;
+  additions: number;
+  deletions: number;
+  changedFiles: number;
+  primaryLanguage: string | null;
+  labels: string[];
+  files: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Skill {
+  id: string;
+  userId: string;
+  name: string;
+  category: string;
+  proficiency: number;
+  firstUsed?: Date;
+  lastUsed?: Date;
+  totalContributions: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ContributionSkill {
+  id: string;
+  contributionId: string;
+  skillId: string;
+  confidence: number;
+  createdAt: Date;
+}

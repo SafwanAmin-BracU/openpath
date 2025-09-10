@@ -19,7 +19,7 @@ OpenPath is a platform designed to connect computer science students with open-s
 - **Dynamic Skill-Based Filtering:** Multi-layer filtering by language, framework, domain, and issue label.
 - **Strategic Recommendations:** Issue recommendations based on GitHub activity, stated interests, or coursework.
 - **Beginner Difficulty Grading:** Auto-classification into Beginner/Intermediate/Advanced using contributor data, codebase stats, and maintainer responsiveness.
-- **Project Viability Scoring:** Projects scored (1–10) for clarity of documentation, maintainer engagement, and community activity[1].
+- **Project Viability Scoring:** Projects scored (1–10) for clarity of documentation, maintainer engagement, and community activity.
 
 ### 2. Contribution Portfolio & Verification System
 
