@@ -54,11 +54,15 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - Each route directory limited to index.tsx and layout.tsx?
 - No additional files in route directories?
+- Route files follow 8-step organization order (imports → constants → middlewares → loaders → actions → page → top-level components → child components)?
 
 **Data Fetching Strategy**:
 
 - No useEffect for data fetching?
 - Using routeLoader$ and routeAction$ for server-side data?
+- Loaders follow `fetch<NameOfData>` naming convention?
+- Actions follow `submit<NameOfAction>` naming convention?
+- All actions validated using Zod schema with `zod$()`?
 
 **Abstraction Layer**:
 
@@ -72,8 +76,23 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 **Business Logic Integration**:
 
-- routeAction/routeLoader use abstracted app classes?
+- routeAction/routeLoader use abstracted service classes?
 - No direct business logic in routes?
+- Service classes located in `/src/server/app/[serviceName]/logicName.service.ts`?
+
+**Component Architecture**:
+
+- Components shared only when needed across multiple routes?
+- Route-local components preferred over shared extraction?
+- Shared components in `/src/components/[ComponentName]/index.ts`?
+- Components concise (5-7 elements maximum)?
+
+**Data Sharing Patterns**:
+
+- URL query parameters used for client-to-server data sharing?
+- sharedMap used for route action/loader communication?
+- server$ functions in `/src/server/remotes/[functionName].remote.ts` when needed?
+- URL maintained as single source of truth for shareable state?
 
 **Simplicity**:
 
@@ -127,8 +146,11 @@ src/
 │       ├── index.tsx         # Feature route
 │       └── layout.tsx        # Feature layout (optional)
 ├── server/                   # Server-side logic
-│   ├── [businessLogicApp]/   # Business logic abstraction
-│   │   └── index.ts          # Main app class
+│   ├── app/                  # Business logic services
+│   │   └── [serviceName]/    # Service modules
+│   │       └── logicName.service.ts  # Service classes
+│   ├── remotes/              # Server$ remote functions
+│   │   └── [functionName].remote.ts  # Remote function definitions
 │   ├── db/                   # Database layer
 │   ├── auth/                 # Authentication
 │   └── octokit/              # GitHub API integration
@@ -268,4 +290,4 @@ _This checklist is updated during execution flow_
 
 ---
 
-_Based on Constitution v1.1.0 - See `/memory/constitution.md`_
+_Based on Constitution v1.7.0 - See `/memory/constitution.md`_

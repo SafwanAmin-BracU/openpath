@@ -1,6 +1,14 @@
 # Tasks: [FEATURE NAME]
 
-**\*Input**: Design documents from `/specs/[###-feature-name]/`
+**\*Input**: Design document- **QwikCity routes**: `src/routes/` with max 2 files per directory (index.tsx, layout.tsx)
+
+- **Route file organization**: 8-step order (imports → constants → middlewares → loaders → actions → page → top-level components → child components)
+- **Naming conventions**: Loaders use `fetch<NameOfData>`, actions use `submit<NameOfAction>`
+- **Validation**: All actions must use Zod schema validation with `zod$()`
+- **Service classes**: `src/server/app/[serviceName]/logicName.service.ts` for business logic
+- **Remote functions**: `src/server/remotes/[functionName].remote.ts` for server$ functions
+- **Components**: `src/components/[ComponentName]/index.ts` only when shared across routes
+- **Data sharing**: URL query parameters for client-server, sharedMap for route communicationm `/specs/[###-feature-name]/`
 
 #
 
@@ -53,62 +61,59 @@ Task: "Integration test for route action in src/routes/[route]/index.test.tsx"
 
 ## Path Conventions
 
-- **QwikCity routes**: `src/routes/` with max 2
-  files per directory (index.tsx, layout.tsx)
-- **Server abstraction**: `src/server/[businessLogicApp]/index.ts` for business logic classes
-- **Components**: `src/components/` for reusable UI
+- **QwikCity routes**: `src/routes/` with max 2 files per directory (index.tsx, layout.tsx)
+- **Service classes**: `src/server/app/[serviceName]/logicName.service.ts` for business logic
+- **Remote functions**: `src/server/remotes/[functionName].remote.ts` for server$ functions
+- **Components**: `src/components/[ComponentName]/index.ts` only when shared across routes
+- **Data sharing**: URL query parameters for client-server, sharedMap for route communication
 - Paths shown below assume QwikCity structure - adjust based on plan.md structure
 
 ## Phase 3.1: Setup
 
 - [ ] T001 Create route directory structure per impl
       ementation plan
-- [ ] T002 Initialize server abstraction classes in src/server/[businessLogicApp]/
+- [ ] T002 Initialize service classes in src/server/app/[serviceName]/
 - [ ] T003 [P] Configure linting and formatting tools
 
 ## Phase 3.2: Core Implementation
 
-- [ ] T004 [P] Server abstraction class in src/server/[busi
-      nessLogicApp]/index.ts
-- [ ] T005 [P] Route index.tsx with routeLoader$ and routeAction$
+- [ ] T004 [P] Service class in src/server/app/[serviceName]/logicName.service.ts
+- [ ] T005 [P] Route index.tsx with fetchDataLoader and submitAction (following naming conventions)
 - [ ] T006 [P] Route layout.tsx if needed
-- [ ] T007 [P] Component in src/components/[ComponentName]/index.tsx
-- [ ] T008 Input validation in route handlers
-- [ ] T009 Error handling and logging
+- [ ] T007 [P] Component in route file (prefer local over shared)
+- [ ] T008 [P] Remote function in src/server/remotes/[functionName].remote.ts (if needed)
+- [ ] T009 Input validation using Zod schema for all actions
+- [ ] T010 Error handling and logging
 
 ## Phase 3.3: Integration
 
-- [ ] T010 Connect server abstraction to database
-- [ ] T011 Auth
-      integration
-- [ ] T012 Request/response logging
-- [ ] T013 CORS and security headers
+- [ ] T011 Connect service classes to database
+- [ ] T012 Auth integration
+- [ ] T013 Request/response logging
+- [ ] T014 CORS and security headers
 
 ## Phase 3.4: Polish
 
-- [ ] T014 [P] Update docs/README.md
-- [ ] T015 Remove duplication
-- [
-  ] T016 Run manual code review
+- [ ] T015 [P] Update docs/README.md
+- [ ] T016 Remove duplication
+- [ ] T017 Run manual code review
 
 ## Dependencies
 
-- T004 blocks T005, T010
-- T007 blocks T008, T011
-- T012 blocks T013
-- Impleme
-  ntation before polish (T014-T016)
+- T004 blocks T005, T011
+- T007 blocks T009, T012
+- T013 blocks T014
+- Implementation before polish (T015-T017)
 
 ## Parallel Example
 ```
 
 # Launch T004-T007 together:
 
-Task: "Server abstraction class in src/server/[
-busimdnesogicApp]/index.ts"
-Task: "Route index.tsx with routeLoader$ and routeAction$"
+Task: "Service class in src/server/app/[serviceName]/logicName.service.ts"
+Task: "Route index.tsx with fetchDataLoader and submitAction (following naming conventions)"
 Task: "Route layout.tsx if needed"
-Task: "Component in src/components/[ComponentName]/index.tsx"
+Task: "Component in route file (prefer local over shared)"
 
 ````md
 ## Notes
@@ -150,11 +155,15 @@ _Applied during main() execution_
 _GATE: Checked by main() before returning_
 
 - [ ] All routes have corresponding implementation
-- [ ] All server abstractions have implementation tasks
-- [ ] All u_er stories have feature tasks
+- [ ] All service classes have implementation tasks
+- [ ] All user stories have feature tasks
 - [ ] Parallel tasks truly independent
 - [ ] Each task specifies exact file path
 - [ ] No task modifies same file as another [P] task
 - [ ] Route structure follows max 2 files per directory
-- [ ] Business logic properly abstracted to server classes
+- [ ] Route files follow 8-step organization order
+- [ ] Loaders use fetch\<NameOfData\> naming convention
+- [ ] Actions use submit\<NameOfAction\> naming convention
+- [ ] All actions include Zod validation schema
+- [ ] Business logic properly abstracted to service classes
 ````
