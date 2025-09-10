@@ -13,7 +13,7 @@ export const onRequest: RequestHandler = async (event) => {
 };
 
 // Loaders
-const useViewerData = routeLoader$(async (event) => {
+export const useViewerData = routeLoader$(async (event) => {
   const viewer = await getViewerData(
     await getOctokit(await event.sharedMap.get("session")),
   );
@@ -25,10 +25,8 @@ const useViewerData = routeLoader$(async (event) => {
 export default component$(() => {
   return (
     <div class="min-h-screen bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-50">
-      {/* Top Navigation Bar */}
       <TopNavigation />
 
-      {/* Main Content */}
       <main class="pt-16">
         <Slot />
       </main>
@@ -47,7 +45,6 @@ const TopNavigation = component$(() => {
     <nav class="fixed top-0 right-0 left-0 z-50 border-b border-stone-200 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-800">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
-          {/* Left: App Logo */}
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <a href="/" class="flex items-center space-x-2">
@@ -61,7 +58,6 @@ const TopNavigation = component$(() => {
             </div>
           </div>
 
-          {/* Center: Navigation Pages */}
           <div class="hidden items-center space-x-8 md:flex">
             <a
               href="/"
@@ -125,9 +121,7 @@ const TopNavigation = component$(() => {
             </a>
           </div>
 
-          {/* Right: User Profile & Sign Out */}
           <div class="flex items-center space-x-4">
-            {/* User Profile */}
             <div class="flex items-center space-x-2">
               <img
                 src={viewerData?.value.avatarUrl}
@@ -141,7 +135,6 @@ const TopNavigation = component$(() => {
               </span>
             </div>
 
-            {/* Sign Out Button */}
             <button
               onClick$={async () => await signOut.submit({})}
               class="inline-flex items-center rounded-md border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:border-stone-600 dark:text-stone-300 dark:hover:bg-stone-700"
@@ -164,7 +157,6 @@ const TopNavigation = component$(() => {
             </button>
           </div>
 
-          {/* Mobile menu button */}
           <div class="md:hidden">
             <button
               type="button"

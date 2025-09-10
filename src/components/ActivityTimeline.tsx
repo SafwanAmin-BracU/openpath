@@ -108,7 +108,7 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
           <div class="space-y-4">
             {/* Activity Grid */}
             <div class="grid grid-cols-7 gap-1">
-              {filledTimeline.map((day, index) => (
+              {filledTimeline.map((day) => (
                 <div
                   key={day.date}
                   class={`aspect-square rounded-sm border border-stone-200 transition-all hover:ring-2 hover:ring-emerald-300 dark:border-stone-600 ${getActivityColor(day.count)}`}

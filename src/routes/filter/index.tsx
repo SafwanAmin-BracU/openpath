@@ -1,13 +1,14 @@
-import { component$, useVisibleTask$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import {
   routeLoader$,
   routeAction$,
   zod$,
   z,
   Form,
-  useNavigate,
 } from "@builder.io/qwik-city";
+import { getOctokit } from "~/server/app/octokit";
 import { GitHubFilterService } from "~/server/app/github-filter";
+import { GitHubCacheService } from "~/server/db/github-cache";
 import type { FilterCriteria, FilterResult } from "~/server/db/schema";
 
 // Constants
@@ -23,6 +24,15 @@ const filterSchema = z.object({
 export const useFetchGitHubIssues = routeLoader$<FilterResult>(
   async (requestEvent) => {
     try {
+      // Get authenticated Octokit instance
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        throw new Error("Authentication required");
+      }
+
+      const octokit = await getOctokit(session);
+      const filterService = new GitHubFilterService(octokit);
+
       // Get filter criteria from URL params
       const language =
         requestEvent.url.searchParams.get("language") || undefined;
@@ -34,12 +44,27 @@ export const useFetchGitHubIssues = routeLoader$<FilterResult>(
         language: language || null,
         topic: topic || null,
         difficulty: difficulty || null,
-        session_id: "mock-session", // Mock session for demo
+        session_id: session.user.id,
       };
 
-      // Use mock data filtering
-      const filterService = new GitHubFilterService();
-      const result = await filterService.fetchFilteredIssues(criteria);
+      // Try cache first
+      const cacheKey = GitHubCacheService.generateCacheKey(criteria);
+      let result = await GitHubCacheService.getCachedIssues(cacheKey);
+
+      if (!result) {
+        // Fetch from GitHub API - we need to create a custom fetch since the service expects different criteria
+        const issues = await filterService.fetchFromGitHubAPI(criteria);
+        result = {
+          issues,
+          total_count: issues.length,
+          filter_applied: criteria,
+          cache_timestamp: new Date().toISOString(),
+          is_from_cache: false,
+        };
+
+        // Cache the result
+        await GitHubCacheService.cacheIssues(cacheKey, issues);
+      }
 
       return result;
     } catch (error) {
@@ -61,9 +86,16 @@ export const useFetchGitHubIssues = routeLoader$<FilterResult>(
 );
 
 export const useAvailableLanguages = routeLoader$<string[]>(
-  async () => {
+  async (requestEvent) => {
     try {
-      const filterService = new GitHubFilterService();
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        throw new Error("Authentication required");
+      }
+
+      const octokit = await getOctokit(session);
+      const filterService = new GitHubFilterService(octokit);
+
       return await filterService.getAvailableLanguages();
     } catch (error) {
       console.error("Error fetching available languages:", error);
@@ -90,9 +122,16 @@ export const useAvailableLanguages = routeLoader$<string[]>(
 );
 
 export const useAvailableTopics = routeLoader$<string[]>(
-  async () => {
+  async (requestEvent) => {
     try {
-      const filterService = new GitHubFilterService();
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        throw new Error("Authentication required");
+      }
+
+      const octokit = await getOctokit(session);
+      const filterService = new GitHubFilterService(octokit);
+
       return await filterService.getAvailableTopics();
     } catch (error) {
       console.error("Error fetching available topics:", error);
@@ -121,6 +160,14 @@ export const useAvailableDifficulties = routeLoader$<string[]>(async () => {
 export const useSubmitFilterUpdate = routeAction$(
   async (data, requestEvent) => {
     try {
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        return {
+          success: false,
+          error: "Authentication required",
+        };
+      }
+
       // Validate input
       const validatedData = filterSchema.parse(data);
 
@@ -143,6 +190,17 @@ export const useSubmitFilterUpdate = routeAction$(
       } else {
         url.searchParams.delete("difficulty");
       }
+
+      // Clear cache for this filter combination
+      const criteria: FilterCriteria = {
+        language: validatedData.language || null,
+        topic: validatedData.topic || null,
+        difficulty: validatedData.difficulty || null,
+        session_id: session.user.id,
+      };
+
+      const cacheKey = GitHubCacheService.generateCacheKey(criteria);
+      await GitHubCacheService.refreshCache(cacheKey);
 
       return {
         success: true,
@@ -170,16 +228,6 @@ export default component$(() => {
   const availableTopics = useAvailableTopics();
   const availableDifficulties = useAvailableDifficulties();
   const filterAction = useSubmitFilterUpdate();
-  const nav = useNavigate();
-
-  // Handle redirect after successful form submission
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track }) => {
-    track(() => filterAction.value);
-    if (filterAction.value?.success && filterAction.value.redirectUrl) {
-      nav(filterAction.value.redirectUrl);
-    }
-  });
 
   return (
     <div class="min-h-screen bg-stone-50 text-stone-900 dark:bg-stone-900 dark:text-stone-100">

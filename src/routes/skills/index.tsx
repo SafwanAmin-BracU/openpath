@@ -49,47 +49,6 @@ export const useFetchEtiquetteCourse = routeLoader$(async () => {
 });
 
 // Actions
-export const useSubmitTutorialAnswer = routeAction$(
-  async (data, { sharedMap }) => {
-    try {
-      const userId = sharedMap.get("userId") as string;
-      if (!userId) return { success: false, error: "User not authenticated" };
-
-      const { tutorialId, stepIndex, answers } = data;
-
-      // Update tutorial progress
-      const progress = await tutorialsService.updateTutorialProgress(
-        userId,
-        tutorialId,
-        stepIndex,
-        answers,
-      );
-
-      // Check for badge awards
-      const awardedBadges = await badgeService.checkAndAwardBadges(userId, {
-        type: "tutorial_completion",
-        target: tutorialId,
-        context: { stepIndex, answers },
-      });
-
-      return {
-        success: true,
-        progress,
-        awardedBadges,
-        message: "Tutorial progress updated successfully",
-      };
-    } catch (error) {
-      console.error("Error submitting tutorial answer:", error);
-      return { success: false, error: "Failed to update tutorial progress" };
-    }
-  },
-  zod$({
-    tutorialId: z.string(),
-    stepIndex: z.number(),
-    answers: z.record(z.any()),
-  }),
-);
-
 export const useSubmitMilestoneCompletion = routeAction$(
   async (data, { sharedMap }) => {
     try {
@@ -169,7 +128,6 @@ export default component$(() => {
   const userBadges = useFetchUserBadges();
   const etiquetteGuides = useFetchEtiquetteCourse();
 
-  const submitTutorialAnswer = useSubmitTutorialAnswer();
   const submitMilestoneCompletion = useSubmitMilestoneCompletion();
   const submitEtiquetteQuiz = useSubmitEtiquetteQuiz();
 
@@ -191,10 +149,7 @@ export default component$(() => {
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Tutorials Section */}
           <div class="lg:col-span-2">
-            <TutorialsSection
-              tutorials={tutorials.value}
-              onSubmitAnswer={submitTutorialAnswer}
-            />
+            <TutorialsSection tutorials={tutorials.value} />
           </div>
 
           {/* Sidebar */}
@@ -217,8 +172,7 @@ export default component$(() => {
 // Tutorials Section Component
 export const TutorialsSection = component$<{
   tutorials: { tutorials: any[]; error: string | null };
-  onSubmitAnswer: any;
-}>(({ tutorials, onSubmitAnswer }) => {
+}>(({ tutorials }) => {
   return (
     <div class="bg-base-100 rounded-lg p-6 shadow-lg">
       <h2 class="mb-6 flex items-center gap-2 text-2xl font-bold">
@@ -234,11 +188,7 @@ export const TutorialsSection = component$<{
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         {tutorials.tutorials?.map((tutorial) => (
-          <TutorialCard
-            key={tutorial.id}
-            tutorial={tutorial}
-            onSubmitAnswer={onSubmitAnswer}
-          />
+          <TutorialCard key={tutorial.id} tutorial={tutorial} />
         ))}
       </div>
     </div>
@@ -248,11 +198,7 @@ export const TutorialsSection = component$<{
 // Tutorial Card Component
 export const TutorialCard = component$<{
   tutorial: any;
-  onSubmitAnswer: any;
-}>(({ tutorial, onSubmitAnswer }) => {
-  // eslint-disable-line @typescript-eslint/no-unused-vars
-  // Note: onSubmitAnswer will be used when implementing full tutorial flow
-
+}>(({ tutorial }) => {
   return (
     <div class="bg-base-200 rounded-lg p-4 transition-shadow hover:shadow-md">
       <div class="mb-3 flex items-start justify-between">
