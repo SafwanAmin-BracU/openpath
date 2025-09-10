@@ -144,4 +144,28 @@ OpenPath is a platform designed to connect computer science students with open-s
 - **Business Logic**: Abstract into classes in `src/server/[businessLogicApp]/index.ts`.
 - **In Route Handlers**: Use the abstracted app classes for business logic.
 
+## Dynamic Skill-Based Filtering Feature
+
+### Overview
+New feature providing GitHub issue filtering by programming language and repository topics. Located at `/filter` route with real-time filtering and caching.
+
+### Key Components
+- **Route**: `/src/routes/filter/index.tsx` - Main filter page
+- **Service**: `/src/server/app/github-filter/githubFilter.service.ts` - GitHub API and filtering logic
+- **Database**: PostgreSQL cache table for GitHub issues with 1-hour TTL
+- **UI**: DaisyUI dropdowns for language and topic selection
+
+### Implementation Patterns
+- **Loaders**: `fetchGitHubIssues` for initial data loading
+- **Actions**: `submitFilterUpdate` for applying filters with Zod validation
+- **Caching**: PostgreSQL-based with automatic refresh
+- **Filtering**: Client-side for performance, server-side for large datasets
+
+### Recent Changes (2025-09-10)
+- Added Dynamic Skill-Based Filtering feature specification
+- Implemented research findings for GitHub API integration
+- Created data models for GitHub issues and filter criteria
+- Defined API contracts for filter operations
+- Established quickstart testing scenarios
+
 Trust these instructions and only search if information is incomplete or erroneous.
