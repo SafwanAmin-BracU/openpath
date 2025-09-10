@@ -17,6 +17,7 @@ import type { FilterCriteria, FilterResult } from "~/server/db/schema";
 const filterSchema = z.object({
   language: z.string().optional(),
   topic: z.string().optional(),
+  difficulty: z.string().optional(),
 });
 
 // Loaders
@@ -36,10 +37,13 @@ export const useFetchGitHubIssues = routeLoader$<FilterResult>(
       const language =
         requestEvent.url.searchParams.get("language") || undefined;
       const topic = requestEvent.url.searchParams.get("topic") || undefined;
+      const difficulty =
+        requestEvent.url.searchParams.get("difficulty") || undefined;
 
       const criteria: FilterCriteria = {
         language: language || null,
         topic: topic || null,
+        difficulty: difficulty || null,
         session_id: session.user.id,
       };
 
@@ -71,6 +75,7 @@ export const useFetchGitHubIssues = routeLoader$<FilterResult>(
         filter_applied: {
           language: null,
           topic: null,
+          difficulty: null,
           session_id: "",
         },
         cache_timestamp: new Date().toISOString(),
@@ -80,70 +85,75 @@ export const useFetchGitHubIssues = routeLoader$<FilterResult>(
   },
 );
 
-export const useAvailableLanguages = routeLoader$<string[]>(async () => {
-  try {
-    // For now, return predefined languages
-    // In production, this could be fetched from GitHub API or cached
-    return [
-      "javascript",
-      "typescript",
-      "python",
-      "java",
-      "csharp",
-      "cpp",
-      "c",
-      "ruby",
-      "php",
-      "go",
-      "rust",
-      "swift",
-      "kotlin",
-      "scala",
-      "r",
-      "shell",
-      "powershell",
-      "html",
-      "css",
-      "vue",
-      "react",
-      "angular",
-    ];
-  } catch (error) {
-    console.error("Error fetching available languages:", error);
-    return [];
-  }
-});
+export const useAvailableLanguages = routeLoader$<string[]>(
+  async (requestEvent) => {
+    try {
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        throw new Error("Authentication required");
+      }
 
-export const useAvailableTopics = routeLoader$<string[]>(async () => {
-  try {
-    // For now, return predefined topics
-    // In production, this could be fetched from GitHub API or cached
-    return [
-      "web-development",
-      "mobile-development",
-      "data-science",
-      "machine-learning",
-      "devops",
-      "security",
-      "testing",
-      "documentation",
-      "bug",
-      "enhancement",
-      "help-wanted",
-      "good-first-issue",
-      "hacktoberfest",
-      "frontend",
-      "backend",
-      "fullstack",
-      "api",
-      "database",
-      "cloud",
-      "microservices",
-    ];
-  } catch (error) {
-    console.error("Error fetching available topics:", error);
-    return [];
-  }
+      const octokit = await getOctokit(session);
+      const filterService = new GitHubFilterService(octokit);
+
+      return await filterService.getAvailableLanguages();
+    } catch (error) {
+      console.error("Error fetching available languages:", error);
+      // Fallback to basic languages
+      return [
+        "javascript",
+        "typescript",
+        "python",
+        "java",
+        "csharp",
+        "cpp",
+        "c",
+        "ruby",
+        "php",
+        "go",
+        "rust",
+        "swift",
+        "kotlin",
+        "scala",
+        "r",
+      ];
+    }
+  },
+);
+
+export const useAvailableTopics = routeLoader$<string[]>(
+  async (requestEvent) => {
+    try {
+      const session = requestEvent.sharedMap.get("session");
+      if (!session?.user?.id) {
+        throw new Error("Authentication required");
+      }
+
+      const octokit = await getOctokit(session);
+      const filterService = new GitHubFilterService(octokit);
+
+      return await filterService.getAvailableTopics();
+    } catch (error) {
+      console.error("Error fetching available topics:", error);
+      // Fallback to basic topics
+      return [
+        "web-development",
+        "mobile-development",
+        "data-science",
+        "machine-learning",
+        "devops",
+        "security",
+        "testing",
+        "frontend",
+        "backend",
+        "api",
+      ];
+    }
+  },
+);
+
+export const useAvailableDifficulties = routeLoader$<string[]>(async () => {
+  return ["good-first-issue", "beginner", "intermediate", "advanced", "expert"];
 });
 
 // Actions
@@ -175,10 +185,17 @@ export const useSubmitFilterUpdate = routeAction$(
         url.searchParams.delete("topic");
       }
 
+      if (validatedData.difficulty) {
+        url.searchParams.set("difficulty", validatedData.difficulty);
+      } else {
+        url.searchParams.delete("difficulty");
+      }
+
       // Clear cache for this filter combination
       const criteria: FilterCriteria = {
         language: validatedData.language || null,
         topic: validatedData.topic || null,
+        difficulty: validatedData.difficulty || null,
         session_id: session.user.id,
       };
 
@@ -200,6 +217,7 @@ export const useSubmitFilterUpdate = routeAction$(
   zod$({
     language: z.string().optional(),
     topic: z.string().optional(),
+    difficulty: z.string().optional(),
   }),
 );
 
@@ -208,6 +226,7 @@ export default component$(() => {
   const issuesData = useFetchGitHubIssues();
   const availableLanguages = useAvailableLanguages();
   const availableTopics = useAvailableTopics();
+  const availableDifficulties = useAvailableDifficulties();
   const filterAction = useSubmitFilterUpdate();
 
   return (
@@ -231,7 +250,7 @@ export default component$(() => {
 
           <Form
             action={filterAction}
-            class="grid grid-cols-1 gap-4 md:grid-cols-2"
+            class="grid grid-cols-1 gap-4 md:grid-cols-3"
             aria-label="GitHub Issues Filter Form"
           >
             {/* Language Filter */}
@@ -309,8 +328,48 @@ export default component$(() => {
               </div>
             </div>
 
+            {/* Difficulty Filter */}
+            <div>
+              <label
+                for="difficulty"
+                class="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300"
+              >
+                Difficulty Level
+              </label>
+              <select
+                id="difficulty"
+                name="difficulty"
+                class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:border-stone-600 dark:bg-stone-700 dark:text-stone-100"
+                aria-describedby="difficulty-help"
+              >
+                <option
+                  value=""
+                  class="bg-white text-stone-900 dark:bg-stone-700 dark:text-stone-100"
+                >
+                  All Difficulties
+                </option>
+                {availableDifficulties.value.map((difficulty) => (
+                  <option
+                    key={difficulty}
+                    value={difficulty}
+                    class="bg-white text-stone-900 dark:bg-stone-700 dark:text-stone-100"
+                  >
+                    {difficulty
+                      .split("-")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(" ")}
+                  </option>
+                ))}
+              </select>
+              <div id="difficulty-help" class="sr-only">
+                Select a difficulty level to filter GitHub issues
+              </div>
+            </div>
+
             {/* Submit Button */}
-            <div class="md:col-span-2">
+            <div class="md:col-span-3">
               <button
                 type="submit"
                 class="w-full rounded-md bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none disabled:opacity-50 sm:w-auto"
@@ -328,7 +387,9 @@ export default component$(() => {
           </Form>
 
           {/* Filter Status */}
-          {issuesData.value.filter_applied.language && (
+          {(issuesData.value.filter_applied.language ||
+            issuesData.value.filter_applied.topic ||
+            issuesData.value.filter_applied.difficulty) && (
             <div class="mt-4 text-sm text-stone-600 dark:text-stone-400">
               <span class="font-medium text-stone-900 dark:text-stone-100">
                 Active Filters:
@@ -341,6 +402,11 @@ export default component$(() => {
               {issuesData.value.filter_applied.topic && (
                 <span class="ml-2 inline-flex items-center rounded-full border border-emerald-600 bg-emerald-800 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
                   Topic: {issuesData.value.filter_applied.topic}
+                </span>
+              )}
+              {issuesData.value.filter_applied.difficulty && (
+                <span class="ml-2 inline-flex items-center rounded-full border border-emerald-500 bg-emerald-700 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+                  Difficulty: {issuesData.value.filter_applied.difficulty}
                 </span>
               )}
             </div>

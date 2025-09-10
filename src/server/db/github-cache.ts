@@ -47,9 +47,10 @@ export class GitHubCacheService {
         issues,
         total_count: issues.length,
         filter_applied: {
-          language: null,
-          topic: null,
-          session_id: "",
+            language: null,
+            topic: null,
+            session_id: "",
+            difficulty: null
         },
         cache_timestamp: new Date().toISOString(),
         is_from_cache: true,

@@ -84,6 +84,16 @@ const TopNavigation = component$(() => {
               Filter
             </a>
             <a
+              href="/dashboard"
+              class={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                loc.url.pathname === "/dashboard"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+                  : "text-stone-700 hover:text-stone-900 dark:text-stone-300 dark:hover:text-stone-100"
+              }`}
+            >
+              Dashboard
+            </a>
+            <a
               href="/portfolio"
               class={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 loc.url.pathname === "/portfolio"

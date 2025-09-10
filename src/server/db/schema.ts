@@ -143,6 +143,7 @@ export interface GitHubIssue {
 export interface FilterCriteria {
   language: string | null;
   topic: string | null;
+  difficulty: string | null;
   session_id: string;
 }
 
@@ -212,6 +213,85 @@ export const contributionSkills = pgTable("contribution_skills", {
   createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
 })
 
+// Impact Metrics Tables
+export const resolvedIssues = pgTable("resolved_issues", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  issueId: text("issue_id").notNull(),
+  issueNumber: integer("issue_number").notNull(),
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  repositoryName: text("repository_name").notNull(),
+  repositoryOwner: text("repository_owner").notNull(),
+  resolvedAt: timestamp("resolved_at", { mode: "date" }).notNull(),
+  resolvedBy: text("resolved_by").notNull(), // PR that resolved this issue
+  labels: jsonb("labels").$defaultFn(() => []),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+export const contributionMetrics = pgTable("contribution_metrics", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  period: text("period").notNull(), // 'daily', 'weekly', 'monthly', 'yearly'
+  periodStart: timestamp("period_start", { mode: "date" }).notNull(),
+  periodEnd: timestamp("period_end", { mode: "date" }).notNull(),
+  totalContributions: integer("total_contributions").notNull().default(0),
+  totalAdditions: integer("total_additions").notNull().default(0),
+  totalDeletions: integer("total_deletions").notNull().default(0),
+  totalFilesChanged: integer("total_files_changed").notNull().default(0),
+  resolvedIssues: integer("resolved_issues").notNull().default(0),
+  repositoriesContributed: integer("repositories_contributed").notNull().default(0),
+  languagesUsed: jsonb("languages_used").$defaultFn(() => []),
+  skillsDemonstrated: jsonb("skills_demonstrated").$defaultFn(() => []),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+})
+
+// Opportunity Matching Tables
+export const opportunityRecommendations = pgTable("opportunity_recommendation", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  repoId: text("repo_id").notNull(), // GitHub repository ID
+  repoName: text("repo_name").notNull(),
+  repoOwner: text("repo_owner").notNull(),
+  repoFullName: text("repo_full_name").notNull(),
+  issueId: text("issue_id").notNull(), // GitHub issue ID
+  issueNumber: integer("issue_number").notNull(),
+  issueTitle: text("issue_title").notNull(),
+  issueUrl: text("issue_url").notNull(),
+  score: integer("score").notNull(), // 1-10 recommendation score
+  difficulty: text("difficulty").notNull(), // 'beginner', 'intermediate', 'advanced'
+  reason: text("reason").notNull(), // Why this was recommended
+  projectViability: integer("project_viability").notNull(), // 1-10 viability score
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(), // When to refresh recommendation
+})
+
+export const projectViability = pgTable("project_viability", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  repoId: text("repo_id").notNull().unique(), // GitHub repository ID
+  repoName: text("repo_name").notNull(),
+  repoOwner: text("repo_owner").notNull(),
+  repoFullName: text("repo_full_name").notNull(),
+  score: integer("score").notNull(), // 1-10 viability score
+  hasReadme: boolean("has_readme").notNull().default(false),
+  hasContributing: boolean("has_contributing").notNull().default(false),
+  hasCodeOfConduct: boolean("has_code_of_conduct").notNull().default(false),
+  avgResponseTimeDays: integer("avg_response_time_days"), // Average maintainer response time
+  contributorsPast3Months: integer("contributors_past_3_months").notNull().default(0),
+  recentCommitsPastMonth: integer("recent_commits_past_month").notNull().default(0),
+  openIssuesCount: integer("open_issues_count").notNull().default(0),
+  totalIssuesCount: integer("total_issues_count").notNull().default(0),
+  computedAt: timestamp("computed_at", { mode: "date" }).notNull().$defaultFn(() => new Date()),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(), // When to refresh viability score
+})
+
 // TypeScript interfaces for contribution tracking
 export interface Contribution {
   id: string;
@@ -252,4 +332,91 @@ export interface ContributionSkill {
   skillId: string;
   confidence: number;
   createdAt: Date;
+}
+
+export interface ResolvedIssue {
+  id: string;
+  userId: string;
+  issueId: string;
+  issueNumber: number;
+  title: string;
+  url: string;
+  repositoryName: string;
+  repositoryOwner: string;
+  resolvedAt: Date;
+  resolvedBy: string;
+  labels: string[];
+  createdAt: Date;
+}
+
+export interface ContributionMetrics {
+  id: string;
+  userId: string;
+  period: string;
+  periodStart: Date;
+  periodEnd: Date;
+  totalContributions: number;
+  totalAdditions: number;
+  totalDeletions: number;
+  totalFilesChanged: number;
+  resolvedIssues: number;
+  repositoriesContributed: number;
+  languagesUsed: string[];
+  skillsDemonstrated: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Opportunity Matching Interfaces
+export interface OpportunityRecommendation {
+  id: string;
+  userId: string;
+  repoId: string;
+  repoName: string;
+  repoOwner: string;
+  repoFullName: string;
+  issueId: string;
+  issueNumber: number;
+  issueTitle: string;
+  issueUrl: string;
+  score: number; // 1-10 recommendation score
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  reason: string;
+  projectViability: number; // 1-10 viability score
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+export interface ProjectViability {
+  id: string;
+  repoId: string;
+  repoName: string;
+  repoOwner: string;
+  repoFullName: string;
+  score: number; // 1-10 viability score
+  hasReadme: boolean;
+  hasContributing: boolean;
+  hasCodeOfConduct: boolean;
+  avgResponseTimeDays?: number;
+  contributorsPast3Months: number;
+  recentCommitsPastMonth: number;
+  openIssuesCount: number;
+  totalIssuesCount: number;
+  computedAt: Date;
+  expiresAt: Date;
+}
+
+export interface IssueRecommendation {
+  issue: GitHubIssue;
+  repo: {
+    id: string;
+    name: string;
+    owner: string;
+    full_name: string;
+    language: string;
+    topics: string[];
+  };
+  reason: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  projectViability: number;
 }
