@@ -5,7 +5,7 @@ import {
   type RequestHandler,
 } from "@builder.io/qwik-city";
 import { useSignOut, verifySessionMiddleware } from "~/server/auth";
-import { getOctokit, getViewerData } from "~/server/octokit";
+import { getOctokit, getViewerData } from "~/server/app/octokit";
 
 // Middleware
 export const onRequest: RequestHandler = async (event) => {
