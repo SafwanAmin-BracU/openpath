@@ -5,7 +5,7 @@
  * Run this to populate the database with initial skills development data
  */
 
-import { seedSkillsData } from "./src/server/app/skills/seed";
+import { seedSkillsData } from "../src/server/app/skills/seed";
 
 async function main() {
   console.log("🚀 Starting OpenPath Skills System Seeding...");
