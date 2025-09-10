@@ -19,6 +19,7 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "preview": "qwik build preview && vite preview --open",
+    "seed:portfolio": "tsx --env-file=.env scripts/seed-portfolio-mock-data.ts",
     "start": "vite --open --mode ssr",
     "qwik": "qwik"
   },
@@ -41,6 +42,7 @@
     "prettier": "3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.7.0",
     "typescript": "5.4.5",
     "typescript-eslint": "8.26.1",
     "undici": "*",
@@ -49,6 +51,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.44.5",
     "octokit": "^5.0.3",
     "pdfkit": "^0.17.2",

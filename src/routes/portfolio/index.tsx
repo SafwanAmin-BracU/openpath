@@ -297,10 +297,10 @@ export default component$(() => {
 const StatCard = component$<{ title: string; value: string; icon: string }>(
   ({ title, value, icon }) => {
     return (
-      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md dark:border-stone-700 dark:bg-stone-800">
+      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md dark:border-stone-600 dark:bg-stone-800">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-stone-600 dark:text-stone-400">
+            <p class="text-sm font-medium text-stone-600 dark:text-stone-300">
               {title}
             </p>
             <p class="text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -317,16 +317,30 @@ const StatCard = component$<{ title: string; value: string; icon: string }>(
 // Contribution Card Component
 const ContributionCard = component$<{ contribution: Contribution }>(
   ({ contribution }) => {
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
+    const formatDate = (date: Date | string | null | undefined) => {
+      if (!date) return "Unknown";
+
+      try {
+        const dateObj = typeof date === "string" ? new Date(date) : date;
+
+        // Check if the date is valid
+        if (isNaN(dateObj.getTime())) {
+          return "Invalid date";
+        }
+
+        return dateObj.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "Invalid date";
+      }
     };
 
     return (
-      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md transition-shadow hover:shadow-lg dark:border-stone-700 dark:bg-stone-800">
+      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md transition-shadow hover:shadow-lg dark:border-stone-600 dark:bg-stone-800">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="flex-1">
             <h3 class="mb-2 text-lg font-semibold text-stone-900 dark:text-stone-100">
@@ -339,12 +353,12 @@ const ContributionCard = component$<{ contribution: Contribution }>(
                 {contribution.title}
               </a>
             </h3>
-            <p class="mb-3 text-sm text-stone-600 dark:text-stone-400">
+            <p class="mb-3 text-sm text-stone-600 dark:text-stone-300">
               {contribution.repositoryOwner}/{contribution.repositoryName} #
               {contribution.prNumber}
             </p>
 
-            <div class="flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-400">
+            <div class="flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-300">
               <span>Merged {formatDate(contribution.mergedAt)}</span>
               <span>
                 +{contribution.additions.toLocaleString()} -
@@ -352,7 +366,7 @@ const ContributionCard = component$<{ contribution: Contribution }>(
               </span>
               <span>{contribution.changedFiles} files</span>
               {contribution.primaryLanguage && (
-                <span class="rounded border border-stone-300 bg-stone-100 px-2 py-1 dark:border-stone-600 dark:bg-stone-700">
+                <span class="rounded border border-stone-300 bg-stone-100 px-2 py-1 dark:border-stone-500 dark:bg-stone-700">
                   {contribution.primaryLanguage}
                 </span>
               )}
@@ -363,7 +377,7 @@ const ContributionCard = component$<{ contribution: Contribution }>(
                 {contribution.labels.slice(0, 5).map((label) => (
                   <span
                     key={label}
-                    class="rounded-full border border-stone-300 bg-stone-100 px-2 py-1 text-xs font-medium text-stone-700 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-300"
+                    class="rounded-full border border-stone-300 bg-stone-100 px-2 py-1 text-xs font-medium text-stone-700 dark:border-stone-500 dark:bg-stone-700 dark:text-stone-200"
                   >
                     {label}
                   </span>
@@ -377,7 +391,7 @@ const ContributionCard = component$<{ contribution: Contribution }>(
               href={contribution.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+              class="inline-flex items-center rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none dark:border-stone-500 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700"
             >
               <svg
                 class="mr-2 h-4 w-4"

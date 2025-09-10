@@ -146,9 +146,7 @@ const RepositoryCard = component$<{ repository: Repository }>(
         <div class="mb-3">
           <h3 class="truncate text-lg font-semibold text-stone-900 dark:text-stone-100">
             <a
-              href={repository.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/user/repos/${repository.full_name}`}
               class="group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
               title={repository.name}
             >
@@ -218,12 +216,24 @@ const RepositoryCard = component$<{ repository: Repository }>(
         </div>
 
         {/* Last Updated */}
-        <div class="text-xs text-stone-400 dark:text-stone-500">
-          Updated {formatDate(repository.updated_at)}
+        <div class="flex items-center justify-between">
+          <div class="text-xs text-stone-400 dark:text-stone-500">
+            Updated {formatDate(repository.updated_at)}
+          </div>
+          <a
+            href={`/user/repos/${repository.name}`}
+            class="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+          >
+            View Details →
+          </a>
         </div>
 
-        {/* Hover overlay for external link */}
-        <div class="pointer-events-none absolute inset-0 rounded-lg border-2 border-transparent transition-colors group-hover:border-emerald-500"></div>
+        {/* Hover overlay for internal navigation */}
+        <a
+          href={`/user/repos/${repository.name}`}
+          class="absolute inset-0 rounded-lg border-2 border-transparent transition-colors hover:border-emerald-500"
+          aria-label={`View details for ${repository.name}`}
+        ></a>
       </div>
     );
   },

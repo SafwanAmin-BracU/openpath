@@ -12,12 +12,26 @@ interface ProjectSummaryProps {
 
 export const ProjectSummary = component$<ProjectSummaryProps>(
   ({ projects }) => {
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
+    const formatDate = (date: Date | string | null | undefined) => {
+      if (!date) return "Unknown";
+
+      try {
+        const dateObj = typeof date === "string" ? new Date(date) : date;
+
+        // Check if the date is valid
+        if (isNaN(dateObj.getTime())) {
+          return "Invalid date";
+        }
+
+        return dateObj.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "Invalid date";
+      }
     };
 
     const getRankIcon = (index: number) => {
@@ -36,13 +50,13 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
     const getRankColor = (index: number) => {
       switch (index) {
         case 0:
-          return "border-yellow-300 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-900/20";
+          return "border-yellow-400 bg-yellow-50 dark:border-yellow-500 dark:bg-yellow-900/30";
         case 1:
-          return "border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-900/20";
+          return "border-gray-400 bg-gray-50 dark:border-gray-500 dark:bg-gray-900/30";
         case 2:
-          return "border-orange-300 bg-orange-50 dark:border-orange-600 dark:bg-orange-900/20";
+          return "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-orange-900/30";
         default:
-          return "border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800";
+          return "border-stone-300 bg-white dark:border-stone-600 dark:bg-stone-800";
       }
     };
 
@@ -76,10 +90,10 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
                   />
                 </svg>
               </div>
-              <p class="text-stone-500 dark:text-stone-400">
+              <p class="text-stone-500 dark:text-stone-300">
                 No project data available yet
               </p>
-              <p class="mt-2 text-sm text-stone-400 dark:text-stone-500">
+              <p class="mt-2 text-sm text-stone-400 dark:text-stone-400">
                 Sync your contributions to see your top projects
               </p>
             </div>
@@ -99,7 +113,7 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
                         <h3 class="font-semibold text-stone-900 dark:text-stone-100">
                           {project.repoOwner}/{project.repoName}
                         </h3>
-                        <p class="text-sm text-stone-600 dark:text-stone-400">
+                        <p class="text-sm text-stone-600 dark:text-stone-300">
                           Last contribution:{" "}
                           {formatDate(project.lastContribution)}
                         </p>
@@ -111,7 +125,7 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
                         <div class="font-medium text-stone-900 dark:text-stone-100">
                           {project.prCount}
                         </div>
-                        <div class="text-stone-600 dark:text-stone-400">
+                        <div class="text-stone-600 dark:text-stone-300">
                           Pull Requests
                         </div>
                       </div>
@@ -119,7 +133,7 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
                         <div class="font-medium text-stone-900 dark:text-stone-100">
                           {project.totalLines.toLocaleString()}
                         </div>
-                        <div class="text-stone-600 dark:text-stone-400">
+                        <div class="text-stone-600 dark:text-stone-300">
                           Lines Changed
                         </div>
                       </div>
@@ -128,15 +142,15 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
 
                   {/* Progress bar based on PR count */}
                   <div class="ml-4 w-16">
-                    <div class="mb-1 text-right text-xs text-stone-500 dark:text-stone-400">
+                    <div class="mb-1 text-right text-xs text-stone-500 dark:text-stone-300">
                       {Math.round(
                         (project.prCount / projects[0].prCount) * 100,
                       )}
                       %
                     </div>
-                    <div class="h-2 w-full rounded-full bg-stone-200 dark:bg-stone-700">
+                    <div class="h-2 w-full rounded-full bg-stone-200 dark:bg-stone-600">
                       <div
-                        class="h-full rounded-full bg-emerald-500 transition-all"
+                        class="h-full rounded-full bg-emerald-500 transition-all dark:bg-emerald-400"
                         style={{
                           width: `${Math.max(10, (project.prCount / projects[0].prCount) * 100)}%`,
                         }}
@@ -149,7 +163,7 @@ export const ProjectSummary = component$<ProjectSummaryProps>(
 
             {projects.length > 5 && (
               <div class="text-center">
-                <p class="text-sm text-stone-500 dark:text-stone-400">
+                <p class="text-sm text-stone-500 dark:text-stone-300">
                   And {projects.length - 5} more projects...
                 </p>
               </div>

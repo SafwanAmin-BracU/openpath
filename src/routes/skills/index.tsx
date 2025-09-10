@@ -250,8 +250,8 @@ export const TutorialCard = component$<{
   tutorial: any;
   onSubmitAnswer: any;
 }>(({ tutorial, onSubmitAnswer }) => {
+  // eslint-disable-line @typescript-eslint/no-unused-vars
   // Note: onSubmitAnswer will be used when implementing full tutorial flow
-  const _unused = onSubmitAnswer; // Prevent linting error for now
 
   return (
     <div class="bg-base-200 rounded-lg p-4 transition-shadow hover:shadow-md">

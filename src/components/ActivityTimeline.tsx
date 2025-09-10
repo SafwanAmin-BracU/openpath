@@ -40,11 +40,19 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
     const maxCount = Math.max(...filledTimeline.map((t) => t.count), 1);
 
     const formatDate = (dateStr: string) => {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          return "Invalid date";
+        }
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "Invalid date";
+      }
     };
 
     const getActivityColor = (count: number) => {
@@ -65,7 +73,7 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
     };
 
     return (
-      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md dark:border-stone-700 dark:bg-stone-800">
+      <div class="rounded-lg border border-stone-200 bg-white p-6 shadow-md dark:border-stone-600 dark:bg-stone-800">
         <h2 class="mb-6 text-xl font-semibold text-stone-900 dark:text-stone-100">
           Activity Timeline
         </h2>
@@ -88,10 +96,10 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
                   />
                 </svg>
               </div>
-              <p class="text-stone-500 dark:text-stone-400">
+              <p class="text-stone-500 dark:text-stone-300">
                 No activity data available yet
               </p>
-              <p class="mt-2 text-sm text-stone-400 dark:text-stone-500">
+              <p class="mt-2 text-sm text-stone-400 dark:text-stone-400">
                 Sync your contributions to see your activity timeline
               </p>
             </div>
@@ -110,36 +118,36 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
             </div>
 
             {/* Legend */}
-            <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-stone-600 dark:text-stone-400">
+            <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-stone-600 dark:text-stone-300">
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-700"></div>
+                <div class="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-600"></div>
                 <span>No activity</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-sm bg-emerald-200 dark:bg-emerald-800"></div>
+                <div class="h-3 w-3 rounded-sm bg-emerald-200 dark:bg-emerald-700"></div>
                 <span>Light</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-sm bg-emerald-300 dark:bg-emerald-700"></div>
+                <div class="h-3 w-3 rounded-sm bg-emerald-300 dark:bg-emerald-600"></div>
                 <span>Moderate</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-sm bg-emerald-400 dark:bg-emerald-600"></div>
+                <div class="h-3 w-3 rounded-sm bg-emerald-400 dark:bg-emerald-500"></div>
                 <span>High</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 w-3 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
+                <div class="h-3 w-3 rounded-sm bg-emerald-500 dark:bg-emerald-400"></div>
                 <span>Very High</span>
               </div>
             </div>
 
             {/* Summary Stats */}
-            <div class="grid grid-cols-2 gap-4 border-t border-stone-200 pt-4 dark:border-stone-700">
+            <div class="grid grid-cols-2 gap-4 border-t border-stone-200 pt-4 dark:border-stone-600">
               <div class="text-center">
                 <div class="text-2xl font-bold text-stone-900 dark:text-stone-100">
                   {filledTimeline.reduce((sum, day) => sum + day.count, 0)}
                 </div>
-                <div class="text-sm text-stone-600 dark:text-stone-400">
+                <div class="text-sm text-stone-600 dark:text-stone-300">
                   Total Contributions
                 </div>
               </div>
@@ -151,14 +159,14 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
                       10,
                   ) / 10}
                 </div>
-                <div class="text-sm text-stone-600 dark:text-stone-400">
+                <div class="text-sm text-stone-600 dark:text-stone-300">
                   Daily Average
                 </div>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div class="border-t border-stone-200 pt-4 dark:border-stone-700">
+            <div class="border-t border-stone-200 pt-4 dark:border-stone-600">
               <h3 class="mb-3 font-medium text-stone-900 dark:text-stone-100">
                 Recent Activity
               </h3>
@@ -168,14 +176,14 @@ export const ActivityTimeline = component$<ActivityTimelineProps>(
                     key={day.date}
                     class="flex items-center justify-between text-sm"
                   >
-                    <span class="text-stone-600 dark:text-stone-400">
+                    <span class="text-stone-600 dark:text-stone-300">
                       {formatDate(day.date)}
                     </span>
                     <div class="flex items-center gap-2">
                       <span class="font-medium text-stone-900 dark:text-stone-100">
                         {day.count} contributions
                       </span>
-                      <span class="text-xs text-stone-500 dark:text-stone-400">
+                      <span class="text-xs text-stone-500 dark:text-stone-300">
                         ({getActivityLevel(day.count)})
                       </span>
                     </div>
